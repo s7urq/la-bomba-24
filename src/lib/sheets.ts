@@ -17,6 +17,12 @@ const SHEET_URLS = {
   config: process.env.NEXT_PUBLIC_SHEET_CONFIG ?? "",
 };
 
+const WHATSAPP_FALLBACK = (process.env.NEXT_PUBLIC_WHATSAPP ?? "").replace(/\D/g, "");
+const STORE_CONFIG_FALLBACK = {
+  ...EMPTY_STORE_CONFIG,
+  whatsapp: WHATSAPP_FALLBACK,
+};
+
 type SheetName = keyof typeof SHEET_URLS;
 
 interface CachedSheet {
@@ -111,7 +117,12 @@ export async function loadCatalog(signal?: AbortSignal): Promise<{
   const [products, zones, config] = await Promise.all([
     loadSheet("products", parseProductsCsv, [], signal),
     loadSheet("zones", parseZonesCsv, [], signal),
-    loadSheet("config", parseConfigCsv, EMPTY_STORE_CONFIG, signal),
+    loadSheet(
+      "config",
+      (csv) => parseConfigCsv(csv, WHATSAPP_FALLBACK),
+      STORE_CONFIG_FALLBACK,
+      signal,
+    ),
   ]);
 
   return {

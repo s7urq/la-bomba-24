@@ -60,6 +60,7 @@ describe("catálogo publicado", () => {
   it("lee el estado manual y limpia el número de WhatsApp", () => {
     const config = parseConfigCsv(
       "clave,valor\ndelivery_activo,si\nmensaje_cerrado,Volvemos el jueves\nwhatsapp,+54 9 11 5555-4444\nhorario_texto,Jue a dom de 20 a 03",
+      "+54 9 11 0000-0000",
     );
 
     expect(config).toEqual({
@@ -68,5 +69,11 @@ describe("catálogo publicado", () => {
       whatsapp: "5491155554444",
       horarioTexto: "Jue a dom de 20 a 03",
     });
+  });
+
+  it("usa el WhatsApp de respaldo cuando la celda del Sheet está vacía", () => {
+    const config = parseConfigCsv("clave,valor\nwhatsapp,", "+54 9 11 3833-6347");
+
+    expect(config.whatsapp).toBe("5491138336347");
   });
 });
