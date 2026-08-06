@@ -86,7 +86,7 @@ export function parseZonesCsv(input: string): DeliveryZone[] {
   return zones;
 }
 
-export function parseConfigCsv(input: string, whatsappFallback = ""): StoreConfig {
+export function parseConfigCsv(input: string): StoreConfig {
   const values = new Map(
     csvToRecords(input).map((row) => [normalize(row.clave ?? ""), (row.valor ?? "").trim()]),
   );
@@ -94,7 +94,7 @@ export function parseConfigCsv(input: string, whatsappFallback = ""): StoreConfi
   return {
     deliveryActivo: normalize(values.get("delivery_activo") ?? "") === "si",
     mensajeCerrado: values.get("mensaje_cerrado") ?? "",
-    whatsapp: (values.get("whatsapp") || whatsappFallback).replace(/\D/g, ""),
+    whatsapp: (values.get("whatsapp") ?? "").replace(/\D/g, ""),
     horarioTexto: values.get("horario_texto") || EMPTY_STORE_CONFIG.horarioTexto,
   };
 }
