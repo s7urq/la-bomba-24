@@ -1,10 +1,13 @@
 "use client";
 
-import { ArrowUpRight, ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
 import { useCatalog } from "@/providers/catalog-provider";
 import { cartQuantity, useCartStore } from "@/store/cart-store";
+
+/** Horario fijo del local. No viene del Sheet: es dato de marca, no de stock. */
+const HORARIO = "Delivery de 20 a 3 hs";
 
 export function StoreHeader() {
   const { data, loading } = useCatalog();
@@ -17,26 +20,36 @@ export function StoreHeader() {
     <header className="store-header">
       <div className="store-header__top">
         <Link className="brand" href="/" aria-label="Ir al inicio de La Bomba 24">
-          <span>LA BOMBA</span>
-          <strong>24</strong>
+          <span className="brand__bomb" aria-hidden="true">
+            <strong>24</strong>
+            <svg className="brand__fuse" viewBox="0 0 18 18">
+              <path
+                d="M2.5 15C4.5 8.5 8.5 5 13.5 4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+              />
+              <circle cx="14.4" cy="3.6" r="3.2" fill="currentColor" />
+            </svg>
+          </span>
+          <span className="brand__word">La Bomba</span>
         </Link>
 
-        <Link className="header-cart" href="/pedido" aria-label={`Ver pedido, ${quantity} productos`}>
-          <ShoppingBag aria-hidden="true" size={20} strokeWidth={2.2} />
+        <Link
+          className="header-cart"
+          href="/pedido"
+          aria-label={`Ver pedido, ${quantity} ${quantity === 1 ? "producto" : "productos"}`}
+        >
+          <ShoppingCart aria-hidden="true" size={26} strokeWidth={2.1} />
           {quantity > 0 && <span key={quantity}>{quantity}</span>}
         </Link>
       </div>
 
       <div className={`delivery-strip ${active ? "delivery-strip--active" : ""}`}>
         <span className="delivery-dot" aria-hidden="true" />
-        <span>
-          {loading
-            ? "Consultando el estado del delivery"
-            : active
-              ? "Repartiendo ahora"
-              : data.config.horarioTexto}
-        </span>
-        {!loading && active && <ArrowUpRight size={15} aria-hidden="true" />}
+        <span>{HORARIO}</span>
+        {!loading && <b>{active ? "Abierto ahora" : "Cerrado"}</b>}
       </div>
     </header>
   );

@@ -68,7 +68,7 @@ export function CheckoutScreen() {
       <header className="order-heading checkout-heading">
         <p className="eyebrow">Entrega</p>
         <h1>¿DÓNDE TE LO <span>LLEVAMOS?</span></h1>
-        <p>Completá lo justo. Al final se abre el pedido listo en WhatsApp.</p>
+        <p>Tres datos y listo. El pedido se abre solo en WhatsApp, ya escrito.</p>
       </header>
 
       <CatalogNotice />
@@ -186,7 +186,7 @@ export function CheckoutScreen() {
           Pedir por WhatsApp
           <ExternalLink size={16} aria-hidden="true" />
         </button>
-        <p className="whatsapp-help">No se cobra nada acá. Revisás y enviás el mensaje desde WhatsApp.</p>
+        <p className="whatsapp-help">Acá no se paga nada. Lo revisás en WhatsApp y lo mandás vos.</p>
       </form>
     </main>
   );

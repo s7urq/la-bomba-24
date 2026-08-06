@@ -45,7 +45,8 @@
 
   --header-height: 101px;
   --radius: 3px;
-  --display: "Arial Black", Impact, sans-serif;
+  --display: var(--font-display), "Arial Black", Impact, sans-serif;
+  --sans: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
 
   /* Alias de compatibilidad: quedan hasta que no los referencie nadie. */
   --text: var(--text-1);
@@ -68,8 +69,11 @@ body {
   min-width: 320px;
   background: #050309;
   color: var(--text-1);
-  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--sans);
   font-variant-numeric: tabular-nums;
+  /* Anton trae un solo peso: sin esto el browser lo engorda por su cuenta y
+     los titulares se ensucian. */
+  font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -193,37 +197,79 @@ p {
   padding: 0 16px;
 }
 
+/* La marca es una bomba con la mecha prendida: el nombre del local, literal.
+   El "24" va adentro del cuerpo, así el número deja de ser un badge suelto. */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-family: var(--display);
-  font-size: 1.05rem;
-  font-weight: 950;
-  letter-spacing: -0.055em;
+  gap: 9px;
 }
 
-.brand strong {
+.brand__word {
+  color: var(--text-1);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.brand__bomb {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.brand__bomb strong {
   display: grid;
-  width: 29px;
-  height: 29px;
+  width: 30px;
+  height: 30px;
+  margin-top: 4px;
   place-items: center;
   border-radius: 50%;
   background: var(--yellow);
-  color: var(--field);
-  font-size: 0.78rem;
-  letter-spacing: -0.06em;
+  box-shadow: var(--glow-sm) rgba(255, 212, 71, 0.55);
+  color: #17120a;
+  font-family: var(--display);
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+}
+
+.brand__fuse {
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  width: 19px;
+  height: 19px;
+  color: var(--yellow);
+  filter: drop-shadow(0 0 5px rgba(255, 212, 71, 0.9));
+  animation: fuse-spark 1.4s var(--ease-in-out) infinite;
+}
+
+@keyframes fuse-spark {
+  50% {
+    opacity: 0.55;
+    filter: drop-shadow(0 0 9px rgba(255, 212, 71, 1));
+  }
 }
 
 .header-cart {
   position: relative;
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   place-items: center;
-  border: 1px solid var(--line-2);
+  border: 1px solid rgba(255, 212, 71, 0.35);
   border-radius: 50%;
   background: var(--surface-1);
+  color: var(--yellow);
+  box-shadow: inset 0 0 18px rgba(255, 212, 71, 0.09);
+  transition: transform var(--dur-press) var(--ease-out);
+}
+
+.header-cart:active {
+  transform: scale(0.94);
 }
 
 .header-cart span {
@@ -244,39 +290,54 @@ p {
   animation: count-pop var(--dur-enter) var(--ease-pop);
 }
 
+/* Franja amarilla siempre presente: el horario es un dato fijo del local, no
+   un estado. Lo que sí cambia es la chapita de la derecha. */
 .delivery-strip {
   display: flex;
   height: 37px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
   padding: 0 14px;
   overflow: hidden;
-  background: var(--surface-2);
-  color: var(--text-2);
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.015em;
+  background: var(--yellow);
+  color: #17120a;
+  font-family: var(--display);
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
   text-align: center;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.delivery-strip--active {
-  background: rgba(53, 188, 96, 0.13);
-  color: #adf7c2;
+.delivery-strip b {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #17120a;
+  color: var(--yellow);
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.delivery-strip--active b {
+  background: #06240f;
+  color: #6ef29a;
 }
 
 .delivery-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: var(--text-4);
+  background: rgba(23, 18, 10, 0.35);
 }
 
 .delivery-strip--active .delivery-dot {
-  background: var(--green);
-  box-shadow: 0 0 0 5px rgba(94, 232, 138, 0.12), 0 0 15px rgba(94, 232, 138, 0.7);
+  background: #0a6b2c;
+  box-shadow: 0 0 0 4px rgba(10, 107, 44, 0.22);
   animation: live-pulse 1.8s infinite;
 }
 
@@ -317,8 +378,8 @@ p {
   font-family: var(--display);
   font-size: clamp(1.95rem, 8.7vw, 3.95rem);
   font-weight: 950;
-  line-height: 0.86;
-  letter-spacing: -0.077em;
+  line-height: 0.92;
+  letter-spacing: 0.012em;
 }
 
 .home-hero h1 span {
@@ -430,7 +491,7 @@ p {
   overflow: hidden;
   font-family: var(--display);
   font-size: clamp(1.02rem, 5.2vw, 1.8rem);
-  letter-spacing: -0.055em;
+  letter-spacing: 0.012em;
   line-height: 0.95;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -481,8 +542,8 @@ p {
   color: var(--yellow);
   font-family: var(--display);
   font-size: clamp(2.1rem, 10.5vw, 3.6rem);
-  letter-spacing: -0.06em;
-  line-height: 0.84;
+  letter-spacing: 0.012em;
+  line-height: 0.9;
   text-transform: uppercase;
   text-shadow:
     0 0 24px rgba(255, 212, 71, 0.55),
@@ -661,8 +722,8 @@ p {
   color: var(--category-accent);
   font-family: var(--display);
   font-size: clamp(2.6rem, 13.5vw, 5.4rem);
-  letter-spacing: -0.075em;
-  line-height: 0.86;
+  letter-spacing: 0.012em;
+  line-height: 0.92;
   text-transform: uppercase;
   text-shadow:
     0 0 28px color-mix(in srgb, var(--category-accent) 50%, transparent),
@@ -1139,7 +1200,7 @@ p {
   margin: 10px 0;
   font-family: var(--display);
   font-size: 2rem;
-  letter-spacing: -0.06em;
+  letter-spacing: 0.012em;
   line-height: 0.95;
   text-transform: uppercase;
 }
@@ -1207,7 +1268,7 @@ p {
   margin-top: 1px;
   font-family: var(--display);
   font-size: 1.55rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.01em;
   line-height: 1;
   animation: total-pop var(--dur-enter) var(--ease-pop);
 }
@@ -1256,8 +1317,8 @@ p {
   margin: 8px 0 12px;
   font-family: var(--display);
   font-size: clamp(2.35rem, 12vw, 4.7rem);
-  letter-spacing: -0.075em;
-  line-height: 0.9;
+  letter-spacing: 0.012em;
+  line-height: 0.92;
 }
 
 .order-heading h1 span {
@@ -1365,7 +1426,7 @@ p {
   color: var(--text);
   font-family: var(--display);
   font-size: 0.85rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.01em;
   text-align: center;
 }
 
@@ -1413,8 +1474,8 @@ p {
   color: var(--yellow);
   font-family: var(--display);
   font-size: 1.6rem;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
+  letter-spacing: 0.012em;
+  line-height: 0.92;
   text-transform: uppercase;
   text-shadow: 0 0 22px rgba(255, 212, 71, 0.45);
 }
@@ -1501,7 +1562,7 @@ p {
   font-family: var(--display);
   font-size: 0.9rem;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   box-shadow: var(--glow-md) rgba(255, 212, 71, 0.35);
   transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
@@ -1550,7 +1611,7 @@ p {
 .closed-note strong {
   font-family: var(--display);
   font-size: 1.05rem;
-  letter-spacing: -0.035em;
+  letter-spacing: 0.01em;
   line-height: 1;
   text-transform: uppercase;
 }
