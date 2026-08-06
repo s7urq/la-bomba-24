@@ -28,7 +28,7 @@ export function OrderScreen() {
   return (
     <main className="page-shell order-page">
       <div className="page-back-row">
-        <Link href="/">
+        <Link href="/" transitionTypes={["nav-back"]}>
           <ArrowLeft size={18} aria-hidden="true" />
           Seguir eligiendo
         </Link>
@@ -103,7 +103,7 @@ export function OrderScreen() {
       </section>
 
       {canContinue ? (
-        <Link className="primary-button" href="/checkout">
+        <Link className="primary-button" href="/checkout" transitionTypes={["nav-forward"]}>
           Continuar con la dirección
           <ArrowRight size={19} aria-hidden="true" />
         </Link>

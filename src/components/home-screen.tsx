@@ -51,6 +51,7 @@ export function HomeScreen() {
                 key={slug}
                 className="category-cover"
                 href={`/categoria/${slug}`}
+                transitionTypes={["nav-forward"]}
                 style={accentStyle(category)}
               >
                 <Image
@@ -72,7 +73,7 @@ export function HomeScreen() {
         </div>
       </section>
 
-      <Link className="anything-banner" href="/pedido#pedido-libre">
+      <Link className="anything-banner" href="/pedido#pedido-libre" transitionTypes={["nav-forward"]}>
         <div>
           <span>¿No aparece?</span>
           <strong>Te llevamos cualquier cosa.</strong>
@@ -93,6 +94,7 @@ export function HomeScreen() {
               <Link
                 key={slug}
                 href={`/categoria/${slug}`}
+                transitionTypes={["nav-forward"]}
                 style={accentStyle(category)}
               >
                 <span>{String(index + 5).padStart(2, "0")}</span>

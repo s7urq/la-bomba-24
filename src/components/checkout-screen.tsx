@@ -58,7 +58,7 @@ export function CheckoutScreen() {
   return (
     <main className="page-shell checkout-page">
       <div className="page-back-row">
-        <Link href="/pedido">
+        <Link href="/pedido" transitionTypes={["nav-back"]}>
           <ArrowLeft size={18} aria-hidden="true" />
           Volver al pedido
         </Link>

@@ -42,15 +42,33 @@ El corte va de a **50 g**, con mínimo 100 g y default 250 g. El paso de 50 es
 para que el cuarto (250), el medio (500) y el kilo caigan justo: con paso de
 100 el cuarto no existe, y "un cuarto de jamón" es literalmente como se pide.
 
-## Lo que quedó bloqueado
+## View Transitions
 
-**View Transitions de React.** El React instalado (19.2.8 estable) no exporta
-`ViewTransition` — solo `Activity` — y este build de Next 16.3 tampoco expone el
-flag experimental. Requeriría pasar a `react@canary`, que no es una decisión
-para tomar sin vos en una app que ya está en producción. En su lugar hay
-animación de entrada por pantalla (`.page-shell`) y cascada en las grillas, que
-dan la mayor parte del efecto sin tocar dependencias. Si querés las de verdad,
-decime y evaluamos el canary.
+Andan, sin tocar dependencias. Deslizamiento direccional entre pantallas: el
+contenido sale hacia la izquierda al entrar a una categoría y vuelve hacia la
+derecha al salir.
+
+**Cómo funciona.** Cada `Link` declara su dirección con
+`transitionTypes={["nav-forward"]}` o `["nav-back"]`, y cada `page.tsx` va
+envuelto en `<PageTransition>` (nunca el layout: los layouts persisten entre
+navegaciones, así que ahí `enter`/`exit` no se disparan). El header y la barra
+de carrito llevan `view-transition-name` y animación `none`: son el ancla
+espacial, si se deslizan con el contenido se pierde la referencia de qué se
+movió.
+
+Una navegación **sin tipo** (botón atrás del browser, gesto de swipe, refresh)
+no desliza. Es a propósito: no se puede saber su dirección y adivinarla mal
+desorienta más que no animar nada.
+
+> **Nota sobre un error mío.** Antes reporté esto como bloqueado, diciendo que
+> el React instalado no exportaba `ViewTransition`. Estaba mal, y el error fue
+> de método: chequeé el paquete `react` de la raíz (19.2.8 estable) en vez del
+> React contra el que Next realmente compila. El App Router de Next 16 aliasa
+> `react` a su canary interno (`next/dist/compiled/react`), que sí exporta
+> `ViewTransition`, `Activity` y `addTransitionType`. Los tipos salen de
+> `@types/react/canary.d.ts`, habilitados desde `src/types/react-canary.d.ts`.
+> Para verificar si una feature de React existe en un proyecto Next, hay que
+> mirar el React compilado, no el de `node_modules/react`.
 
 
 Documento de criterio para la pasada visual. El que implementa esto NO toca lógica:

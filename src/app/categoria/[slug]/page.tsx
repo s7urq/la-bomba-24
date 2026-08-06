@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CategoryScreen } from "@/components/category-screen";
+import { PageTransition } from "@/components/page-transition";
 import { CATEGORIES, CATEGORY_SLUGS, isCategorySlug } from "@/config/categories";
 
 export const dynamicParams = false;
@@ -30,5 +31,9 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   if (!isCategorySlug(slug)) notFound();
-  return <CategoryScreen slug={slug} />;
+  return (
+    <PageTransition>
+      <CategoryScreen slug={slug} />
+    </PageTransition>
+  );
 }

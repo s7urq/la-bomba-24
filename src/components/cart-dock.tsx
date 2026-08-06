@@ -19,7 +19,7 @@ export function CartDock() {
         {/* La key reinicia la animación del total cada vez que cambia el monto. */}
         <strong key={subtotal}>{formatPesos(subtotal)}</strong>
       </div>
-      <Link href="/pedido" aria-label="Ver pedido">
+      <Link href="/pedido" aria-label="Ver pedido" transitionTypes={["nav-forward"]}>
         Ver pedido
         <ArrowRight size={18} aria-hidden="true" />
       </Link>

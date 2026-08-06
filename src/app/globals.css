@@ -158,16 +158,83 @@ p {
   z-index: 1;
   width: 100%;
   padding: 0 16px 42px;
-  /* Entrada por pantalla. Sustituye a las View Transitions de React, que este
-     React estable todavía no expone (ver DESIGN.md). */
-  animation: page-in var(--dur-move) var(--ease-out) both;
 }
 
-@keyframes page-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
+/* ── Transiciones de página ──────────────────────────────────────────────
+   El tipo lo declara cada Link con `transitionTypes`. Una navegación sin
+   tipo (botón atrás del browser, gesto de swipe, refresh) no desliza: no
+   podemos saber su dirección y adivinarla mal desorienta más que no animar. */
+
+::view-transition {
+  /* Sin esto el overlay se come los toques mientras dura la animación. */
+  pointer-events: none;
+}
+
+::view-transition-old(.nav-forward) {
+  --slide-offset: -56px;
+  animation:
+    150ms var(--ease-in-out) both vt-fade reverse,
+    var(--dur-move) var(--ease-in-out) both vt-slide reverse;
+}
+
+::view-transition-new(.nav-forward) {
+  --slide-offset: 56px;
+  animation:
+    210ms var(--ease-out) 150ms both vt-fade,
+    var(--dur-move) var(--ease-in-out) both vt-slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 56px;
+  animation:
+    150ms var(--ease-in-out) both vt-fade reverse,
+    var(--dur-move) var(--ease-in-out) both vt-slide reverse;
+}
+
+::view-transition-new(.nav-back) {
+  --slide-offset: -56px;
+  animation:
+    210ms var(--ease-out) 150ms both vt-fade,
+    var(--dur-move) var(--ease-in-out) both vt-slide;
+}
+
+/* La salida es más rápida que la entrada: lo viejo tiene que dejar de pelear
+   por la atención antes de que lo nuevo pida la suya. */
+@keyframes vt-slide {
+  from { translate: var(--slide-offset); }
+  to { translate: 0; }
+}
+
+@keyframes vt-fade {
+  from { opacity: 0; filter: blur(3px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+/* El header y la barra de carrito quedan clavados: son el ancla espacial. Si
+   se deslizan junto al contenido, se pierde la referencia de qué se movió. */
+.store-header {
+  view-transition-name: site-header;
+}
+
+.cart-dock {
+  view-transition-name: cart-dock;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(cart-dock) {
+  z-index: 100;
+  animation: none;
+}
+
+/* Sin esto parpadean las dos copias, la vieja y la nueva, durante el cruce. */
+::view-transition-old(site-header),
+::view-transition-old(cart-dock) {
+  display: none;
+}
+
+::view-transition-new(site-header),
+::view-transition-new(cart-dock) {
+  animation: none;
 }
 
 .eyebrow {

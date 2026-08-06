@@ -19,7 +19,12 @@ export function StoreHeader() {
   return (
     <header className="store-header">
       <div className="store-header__top">
-        <Link className="brand" href="/" aria-label="Ir al inicio de La Bomba 24">
+        <Link
+          className="brand"
+          href="/"
+          aria-label="Ir al inicio de La Bomba 24"
+          transitionTypes={["nav-back"]}
+        >
           <span className="brand__bomb" aria-hidden="true">
             <strong>24</strong>
             <svg className="brand__fuse" viewBox="0 0 18 18">
@@ -40,6 +45,7 @@ export function StoreHeader() {
           className="header-cart"
           href="/pedido"
           aria-label={`Ver pedido, ${quantity} ${quantity === 1 ? "producto" : "productos"}`}
+          transitionTypes={["nav-forward"]}
         >
           <ShoppingCart aria-hidden="true" size={26} strokeWidth={2.1} />
           {quantity > 0 && <span key={quantity}>{quantity}</span>}

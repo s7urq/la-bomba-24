@@ -85,7 +85,7 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
         style={{ "--category-accent": category.accent } as React.CSSProperties}
       >
         <div className="page-back-row">
-          <Link href="/">
+          <Link href="/" transitionTypes={["nav-back"]}>
             <ArrowLeft size={18} aria-hidden="true" />
             Inicio
           </Link>
@@ -164,7 +164,9 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
                 ? "Probá con la marca o con una palabra más corta. Si no, escribilo vos y lo buscamos."
                 : "No inventamos precios. Igual escribinos qué necesitás y te lo conseguimos."}
             </p>
-            <Link href="/pedido#pedido-libre">Escribilo en el pedido libre</Link>
+            <Link href="/pedido#pedido-libre" transitionTypes={["nav-forward"]}>
+              Escribilo en el pedido libre
+            </Link>
           </div>
         )}
       </main>
