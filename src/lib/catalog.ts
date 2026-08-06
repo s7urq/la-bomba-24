@@ -49,6 +49,8 @@ export function parseProductsCsv(input: string): Product[] {
     if (seen.has(id)) continue;
     seen.add(id);
 
+    const unidadRaw = normalize(row.unidad ?? "");
+
     products.push({
       id,
       categoria,
@@ -59,6 +61,10 @@ export function parseProductsCsv(input: string): Product[] {
       destacado: normalize(row.destacado ?? "") === "si",
       disponible: normalize(row.disponible ?? "") !== "no",
       imagen: (row.imagen ?? "").trim(),
+      seccion: (row.seccion ?? "").trim(),
+      // Sin columna `unidad` en la planilla todo sigue siendo por unidad, así
+      // que los Sheets que ya existen no cambian de comportamiento.
+      unidad: unidadRaw === "kg" || unidadRaw === "peso" ? "kg" : "unidad",
     });
   }
 

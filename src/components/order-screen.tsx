@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { QuantityControl } from "@/components/quantity-control";
 import { CATEGORIES } from "@/config/categories";
 import { formatPesos } from "@/lib/format";
+import { isByWeight, lineTotal } from "@/lib/pricing";
 import { cartSubtotal, useCartStore } from "@/store/cart-store";
 
 export function OrderScreen() {
@@ -27,7 +28,7 @@ export function OrderScreen() {
   return (
     <main className="page-shell order-page">
       <div className="page-back-row">
-        <Link href="/">
+        <Link href="/" transitionTypes={["nav-back"]}>
           <ArrowLeft size={18} aria-hidden="true" />
           Seguir eligiendo
         </Link>
@@ -52,11 +53,15 @@ export function OrderScreen() {
                 <div className="order-item__copy">
                   <span>{item.marca || category.label}</span>
                   <strong>{item.nombre}</strong>
-                  <b>{formatPesos(item.precio * item.cantidad)}</b>
+                  <b>
+                    {formatPesos(lineTotal(item))}
+                    {isByWeight(item) && <i>{formatPesos(item.precio)}/kg</i>}
+                  </b>
                 </div>
                 <QuantityControl
                   name={item.nombre}
                   quantity={item.cantidad}
+                  unidad={item.unidad}
                   onChange={(quantity) => setQuantity(item.id, quantity)}
                   onRemove={() => removeItem(item.id)}
                 />
@@ -67,8 +72,8 @@ export function OrderScreen() {
       ) : (
         <section className="empty-order">
           <ShoppingBag size={27} aria-hidden="true" />
-          <h2>Tu carrito está vacío</h2>
-          <p>Podés volver al catálogo o pedir algo que no figure abajo.</p>
+          <h2>Acá no hay nada</h2>
+          <p>Todavía no sumaste nada. Volvé al catálogo o escribí abajo lo que estás buscando.</p>
         </section>
       )}
 
@@ -98,13 +103,13 @@ export function OrderScreen() {
       </section>
 
       {canContinue ? (
-        <Link className="primary-button" href="/checkout">
+        <Link className="primary-button" href="/checkout" transitionTypes={["nav-forward"]}>
           Continuar con la dirección
           <ArrowRight size={19} aria-hidden="true" />
         </Link>
       ) : (
         <button className="primary-button" type="button" disabled>
-          Agregá algo para continuar
+          Sumá algo primero
           <ArrowRight size={19} aria-hidden="true" />
         </button>
       )}

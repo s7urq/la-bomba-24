@@ -73,6 +73,28 @@ describe("mensaje de WhatsApp", () => {
     expect(result.message).toContain("Dirección: Mitre 1234, Quilmes");
   });
 
+  it("escribe los fiambres en gramos y no como cantidad de productos", () => {
+    const conFiambre: CartItem[] = [
+      ...items,
+      {
+        id: "fiambres:jamon-crudo",
+        categoria: "fiambres",
+        marca: "",
+        nombre: "Jamón crudo",
+        descripcion: "",
+        precio: 8900,
+        imagen: "",
+        cantidad: 500,
+        unidad: "kg",
+      },
+    ];
+
+    const message = buildWhatsAppMessage({ ...order, items: conFiambre }).message;
+    expect(message).toContain("• 500 g de Jamón crudo — $4.450");
+    // Los productos por unidad no deben haber cambiado de formato.
+    expect(message).toContain("• 2x Heineken 970ml — $15.400");
+  });
+
   it("codifica el texto y usa el número provisto por config", () => {
     const url = buildWhatsAppUrl("+54 9 11 5555-4444", "Pedido & dirección");
     expect(url).toBe("https://wa.me/5491155554444?text=Pedido%20%26%20direcci%C3%B3n");

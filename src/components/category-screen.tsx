@@ -2,13 +2,14 @@
 
 import { ArrowLeft, Search, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { CartDock } from "@/components/cart-dock";
 import { CatalogNotice } from "@/components/catalog-notice";
 import { ProductCard } from "@/components/product-card";
 import { CATEGORIES, type CategorySlug } from "@/config/categories";
 import { normalizeSearch } from "@/lib/catalog";
+import { groupIntoSections } from "@/lib/sections";
 import { useCatalog } from "@/providers/catalog-provider";
 import { useCartStore } from "@/store/cart-store";
 import type { Product } from "@/types/domain";
@@ -60,9 +61,17 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
     [items],
   );
 
+  // Los resultados de búsqueda cruzan categorías: seccionarlos ahí mezclaría
+  // criterios distintos bajo un mismo título.
+  const sections = useMemo(
+    () => (debouncedQuery ? [{ titulo: "", items: products }] : groupIntoSections(products)),
+    [debouncedQuery, products],
+  );
+
   function handleAdd(product: Product) {
     addProduct(product);
     setJustAdded(product.id);
+    navigator.vibrate?.(10);
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
     feedbackTimer.current = window.setTimeout(() => setJustAdded(null), 700);
   }
@@ -76,7 +85,7 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
         style={{ "--category-accent": category.accent } as React.CSSProperties}
       >
         <div className="page-back-row">
-          <Link href="/">
+          <Link href="/" transitionTypes={["nav-back"]}>
             <ArrowLeft size={18} aria-hidden="true" />
             Inicio
           </Link>
@@ -116,32 +125,48 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
             {Array.from({ length: 6 }, (_, index) => <span key={index} />)}
           </div>
         ) : products.length > 0 ? (
-          <section
-            className={`product-grid product-grid--${currentLayout}`}
-            aria-label={debouncedQuery ? "Resultados de búsqueda" : `Productos de ${category.label}`}
-          >
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                category={CATEGORIES[product.categoria]}
-                layout={currentLayout}
-                quantity={quantities.get(product.id) ?? 0}
-                justAdded={justAdded === product.id}
-                onAdd={handleAdd}
-              />
-            ))}
-          </section>
+          sections.map((section) => (
+            <Fragment key={section.titulo || "todo"}>
+              {section.titulo && (
+                <h2 className="section-divider">
+                  <span>{section.titulo}</span>
+                  <small>{section.items.length}</small>
+                </h2>
+              )}
+              <section
+                className={`product-grid product-grid--${currentLayout}`}
+                aria-label={
+                  debouncedQuery
+                    ? "Resultados de búsqueda"
+                    : section.titulo || `Productos de ${category.label}`
+                }
+              >
+                {section.items.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    category={CATEGORIES[product.categoria]}
+                    layout={currentLayout}
+                    quantity={quantities.get(product.id) ?? 0}
+                    justAdded={justAdded === product.id}
+                    onAdd={handleAdd}
+                  />
+                ))}
+              </section>
+            </Fragment>
+          ))
         ) : (
           <div className="empty-catalog">
             <span>{debouncedQuery ? "0 resultados" : "Lista en preparación"}</span>
-            <h2>{debouncedQuery ? "No encontramos eso" : "Todavía no hay precios publicados acá"}</h2>
+            <h2>{debouncedQuery ? "Acá no apareció nada" : "Todavía no hay precios acá"}</h2>
             <p>
               {debouncedQuery
-                ? "Probá con la marca, el tipo de producto o una palabra más corta."
-                : "No inventamos precios. Igual podés escribirnos exactamente qué necesitás."}
+                ? "Probá con la marca o con una palabra más corta. Si no, escribilo vos y lo buscamos."
+                : "No inventamos precios. Igual escribinos qué necesitás y te lo conseguimos."}
             </p>
-            <Link href="/pedido#pedido-libre">Escribir pedido libre</Link>
+            <Link href="/pedido#pedido-libre" transitionTypes={["nav-forward"]}>
+              Escribilo en el pedido libre
+            </Link>
           </div>
         )}
       </main>

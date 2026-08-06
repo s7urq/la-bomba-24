@@ -58,7 +58,7 @@ export function CheckoutScreen() {
   return (
     <main className="page-shell checkout-page">
       <div className="page-back-row">
-        <Link href="/pedido">
+        <Link href="/pedido" transitionTypes={["nav-back"]}>
           <ArrowLeft size={18} aria-hidden="true" />
           Volver al pedido
         </Link>
@@ -68,7 +68,7 @@ export function CheckoutScreen() {
       <header className="order-heading checkout-heading">
         <p className="eyebrow">Entrega</p>
         <h1>¿DÓNDE TE LO <span>LLEVAMOS?</span></h1>
-        <p>Completá lo justo. Al final se abre el pedido listo en WhatsApp.</p>
+        <p>Tres datos y listo. El pedido se abre solo en WhatsApp, ya escrito.</p>
       </header>
 
       <CatalogNotice />
@@ -77,7 +77,7 @@ export function CheckoutScreen() {
         <aside className="closed-note">
           <AlertCircle size={18} aria-hidden="true" />
           <p>
-            <strong>El delivery no figura activo ahora.</strong>
+            <strong>Ahora estamos cerrados</strong>
             <span>{data.config.mensajeCerrado || data.config.horarioTexto}</span>
           </p>
         </aside>
@@ -172,7 +172,7 @@ export function CheckoutScreen() {
         </section>
 
         {!hasOrder && hydrated && (
-          <p className="form-blocker">Tu pedido quedó vacío. Volvé y agregá un producto o un pedido libre.</p>
+          <p className="form-blocker">Te quedaste sin nada en el pedido. Volvé para atrás y sumá algo.</p>
         )}
         {!loading && data.zones.length === 0 && (
           <p className="form-blocker">Todavía no hay zonas publicadas en el Sheet. El checkout queda bloqueado.</p>
@@ -186,7 +186,7 @@ export function CheckoutScreen() {
           Pedir por WhatsApp
           <ExternalLink size={16} aria-hidden="true" />
         </button>
-        <p className="whatsapp-help">No se cobra nada acá. Revisás y enviás el mensaje desde WhatsApp.</p>
+        <p className="whatsapp-help">Acá no se paga nada. Lo revisás en WhatsApp y lo mandás vos.</p>
       </form>
     </main>
   );

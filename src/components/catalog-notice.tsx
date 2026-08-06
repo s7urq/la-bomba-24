@@ -18,11 +18,11 @@ export function CatalogNotice({ productsOnly = false }: { productsOnly?: boolean
   return (
     <aside className={`catalog-notice ${missing ? "catalog-notice--warning" : ""}`}>
       <div>
-        <strong>{missing ? "Hay datos sin publicar" : "Estás viendo la última lista guardada"}</strong>
+        <strong>{missing ? "Hay datos sin publicar" : "Estás viendo la última lista que tenemos"}</strong>
         <p>
           {missing
             ? "Revisá las URLs del Sheet o probá de nuevo en un rato. No mostramos precios inventados."
-            : "El Sheet no respondió. Los precios se actualizan apenas vuelva la conexión."}
+            : "No pudimos actualizar los precios. Se acomodan solos apenas vuelva la conexión."}
         </p>
       </div>
       <button type="button" onClick={() => void refresh()} disabled={loading}>

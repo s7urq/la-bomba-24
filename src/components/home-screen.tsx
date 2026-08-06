@@ -28,7 +28,10 @@ export function HomeScreen() {
           <span>CUALQUIER <b>COSA.</b></span>
           <span>A CUALQUIER <b>HORA.</b></span>
         </h1>
-        <p>Elegí lo tuyo. Lo armamos acá y terminás el pedido directo por WhatsApp.</p>
+        <p>
+          De jueves a domingo hasta las 3. Si está en la lista te llega. Si no está, lo escribís
+          y lo conseguimos igual.
+        </p>
         <ArrowDownRight className="home-hero__arrow" size={34} aria-hidden="true" />
       </section>
 
@@ -48,6 +51,7 @@ export function HomeScreen() {
                 key={slug}
                 className="category-cover"
                 href={`/categoria/${slug}`}
+                transitionTypes={["nav-forward"]}
                 style={accentStyle(category)}
               >
                 <Image
@@ -69,7 +73,7 @@ export function HomeScreen() {
         </div>
       </section>
 
-      <Link className="anything-banner" href="/pedido#pedido-libre">
+      <Link className="anything-banner" href="/pedido#pedido-libre" transitionTypes={["nav-forward"]}>
         <div>
           <span>¿No aparece?</span>
           <strong>Te llevamos cualquier cosa.</strong>
@@ -90,6 +94,7 @@ export function HomeScreen() {
               <Link
                 key={slug}
                 href={`/categoria/${slug}`}
+                transitionTypes={["nav-forward"]}
                 style={accentStyle(category)}
               >
                 <span>{String(index + 5).padStart(2, "0")}</span>
@@ -103,7 +108,8 @@ export function HomeScreen() {
 
       <footer className="home-footer">
         <strong>LA BOMBA 24</strong>
-        <p>Quilmes · abierto todo el día</p>
+        <p>Quilmes · Jueves a domingo, de 20 a 3</p>
+        <p>Cuando ya cerró todo, seguimos nosotros.</p>
       </footer>
     </main>
   );
