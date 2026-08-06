@@ -1,24 +1,32 @@
 # La Bomba 24
 
-Webapp de pedidos para La Bomba 24, construida con Next.js, TypeScript, Tailwind y Supabase.
+Catálogo mobile-first para el kiosco La Bomba 24 de Quilmes. Carga productos, zonas y
+estado del delivery desde tres pestañas de Google Sheets publicadas como CSV. El carrito
+vive en `localStorage` y el checkout termina en un mensaje prearmado de WhatsApp.
 
-## Comandos
+No hay backend, usuarios, pagos ni panel: el Sheet es el panel.
 
-- `npm run dev`: servidor de desarrollo.
-- `npm test`: tests unitarios.
-- `npm run typecheck`: chequeo de TypeScript.
-- `npm run lint`: chequeo de ESLint.
-- `npm run build`: build de producción.
-- `npm run import:csv -- ruta/al/archivo.csv`: importa productos usando `.env.local`.
+## Desarrollo
 
-## Variables de entorno
+1. Copiá `.env.example` a `.env.local`.
+2. Publicá las pestañas `productos`, `zonas` y `config` como CSV y pegá sus URLs.
+3. Ejecutá `npm run dev`.
 
-Copiar las claves documentadas en `.env.example` a `.env.local`. La service role y el PIN son secretos de servidor y nunca deben exponerse al cliente.
+Comandos de control:
 
-## Base de datos
+- `npm run typecheck`
+- `npm run lint`
+- `npm test`
+- `npm run build`
 
-Las migraciones están en `supabase/migrations` y los datos de prueba deliberadamente falsos en `supabase/seed.sql`.
+`npm run build` genera un export estático en `out/`, listo para publicar en Cloudflare
+Pages. El comando de build es `npm run build` y el directorio de salida es `out`.
 
-## Estado de implementación
+## Datos requeridos
 
-En esta etapa están preparados el scaffolding, el esquema de datos, el seed, el importador CSV y la lógica de dominio con tests. Las pantallas y Route Handlers se implementan en la etapa siguiente.
+La estructura exacta de columnas está documentada en [PROYECTO.md](./PROYECTO.md). Un
+producto sin precio no se muestra. Si el Sheet falla, el navegador intenta usar la última
+copia válida que haya guardado; nunca se reemplaza un precio faltante por uno inventado.
+
+Antes de producción hay que completar en el Sheet las zonas y sus mínimos, los precios de
+alfajores, el WhatsApp confirmado y el texto/estado real del delivery.

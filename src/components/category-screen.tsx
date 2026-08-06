@@ -1,0 +1,151 @@
+"use client";
+
+import { ArrowLeft, Search, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { CartDock } from "@/components/cart-dock";
+import { CatalogNotice } from "@/components/catalog-notice";
+import { ProductCard } from "@/components/product-card";
+import { CATEGORIES, type CategorySlug } from "@/config/categories";
+import { normalizeSearch } from "@/lib/catalog";
+import { useCatalog } from "@/providers/catalog-provider";
+import { useCartStore } from "@/store/cart-store";
+import type { Product } from "@/types/domain";
+
+function useDebouncedValue(value: string, delay: number): string {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebounced(value), delay);
+    return () => window.clearTimeout(timeout);
+  }, [delay, value]);
+
+  return debounced;
+}
+
+function matchesSearch(product: Product, query: string): boolean {
+  const haystack = normalizeSearch(
+    [product.marca, product.nombre, product.descripcion, CATEGORIES[product.categoria].label].join(" "),
+  );
+  return haystack.includes(query);
+}
+
+export function CategoryScreen({ slug }: { slug: CategorySlug }) {
+  const { data, loading } = useCatalog();
+  const items = useCartStore((state) => state.items);
+  const addProduct = useCartStore((state) => state.addProduct);
+  const [query, setQuery] = useState("");
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+  const feedbackTimer = useRef<number | null>(null);
+  const debouncedQuery = normalizeSearch(useDebouncedValue(query, 260));
+  const category = CATEGORIES[slug];
+
+  useEffect(
+    () => () => {
+      if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
+    },
+    [],
+  );
+
+  const products = useMemo(() => {
+    if (debouncedQuery) {
+      return data.products.filter((product) => matchesSearch(product, debouncedQuery));
+    }
+    return data.products.filter((product) => product.categoria === slug);
+  }, [data.products, debouncedQuery, slug]);
+
+  const quantities = useMemo(
+    () => new Map(items.map((item) => [item.id, item.cantidad])),
+    [items],
+  );
+
+  function handleAdd(product: Product) {
+    addProduct(product);
+    setJustAdded(product.id);
+    if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = window.setTimeout(() => setJustAdded(null), 700);
+  }
+
+  const currentLayout = debouncedQuery ? "search" : category.layout;
+
+  return (
+    <>
+      <main
+        className="page-shell category-page"
+        style={{ "--category-accent": category.accent } as React.CSSProperties}
+      >
+        <div className="page-back-row">
+          <Link href="/">
+            <ArrowLeft size={18} aria-hidden="true" />
+            Inicio
+          </Link>
+          <span>{category.layout === "list" ? "Lista rápida" : "Elegí y tocá para sumar"}</span>
+        </div>
+
+        <header className="category-heading">
+          <p className="eyebrow">Categoría</p>
+          <h1>{category.label}</h1>
+          <p>{category.description}</p>
+        </header>
+
+        <div className="search-sticky">
+          <label className="catalog-search">
+            <Search size={19} aria-hidden="true" />
+            <span className="sr-only">Buscar en todo el catálogo</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscá en todo el catálogo"
+              autoComplete="off"
+            />
+            {query && (
+              <button type="button" onClick={() => setQuery("")} aria-label="Limpiar búsqueda">
+                <X size={17} aria-hidden="true" />
+              </button>
+            )}
+          </label>
+          {debouncedQuery && <p>Resultados en todas las categorías</p>}
+        </div>
+
+        <CatalogNotice productsOnly />
+
+        {loading ? (
+          <div className="product-grid product-grid--loading" aria-label="Cargando productos">
+            {Array.from({ length: 6 }, (_, index) => <span key={index} />)}
+          </div>
+        ) : products.length > 0 ? (
+          <section
+            className={`product-grid product-grid--${currentLayout}`}
+            aria-label={debouncedQuery ? "Resultados de búsqueda" : `Productos de ${category.label}`}
+          >
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                category={CATEGORIES[product.categoria]}
+                layout={currentLayout}
+                quantity={quantities.get(product.id) ?? 0}
+                justAdded={justAdded === product.id}
+                onAdd={handleAdd}
+              />
+            ))}
+          </section>
+        ) : (
+          <div className="empty-catalog">
+            <span>{debouncedQuery ? "0 resultados" : "Lista en preparación"}</span>
+            <h2>{debouncedQuery ? "No encontramos eso" : "Todavía no hay precios publicados acá"}</h2>
+            <p>
+              {debouncedQuery
+                ? "Probá con la marca, el tipo de producto o una palabra más corta."
+                : "No inventamos precios. Igual podés escribirnos exactamente qué necesitás."}
+            </p>
+            <Link href="/pedido#pedido-libre">Escribir pedido libre</Link>
+          </div>
+        )}
+      </main>
+      <CartDock />
+    </>
+  );
+}
