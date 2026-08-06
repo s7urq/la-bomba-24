@@ -1,5 +1,58 @@
 # Pasada de diseño — La Bomba 24
 
+> **Segunda pasada — cambio de dirección.** El brief original decía
+> "barato-cool, no premium". Se corrigió a: **premium sí, pero de noche/neón,
+> no corporativo**. Todo lo de abajo sigue vigente salvo esa línea. Lo que
+> cambió en consecuencia:
+>
+> - Los negros dejaron de ser gris neutro y pasaron a **negro con violeta
+>   adentro** (`#08060d`). Un neutro puro debajo de acentos neón se lee barato
+>   porque la luz no tiñe nada.
+> - **La profundidad es luminosidad, no bordes ni sombras.** Una sola
+>   estrategia: lo que importa brilla más fuerte. El acento entra atenuado
+>   (26–42%) y florece al tocar. Si todo brilla igual, nada brilla.
+> - Se agregaron **fuentes de luz fijas** al viewport (violeta arriba, amarillo
+>   a la derecha, rosa abajo) y una capa de **grano**. El grano no es
+>   decoración: sobre degradados oscuros el banding es lo que más delata que
+>   algo salió de un CSS por default.
+> - Bordes teñidos de violeta en vez de blancos. El blanco puro sobre negro
+>   recorta; el acento diluido se lee como derrame de luz.
+>
+> **Nota de performance:** el grano va con opacidad plana y **sin**
+> `mix-blend-mode` a propósito. Una capa de blend a pantalla completa obliga al
+> compositor a rehacer todo en cada scroll — con blend activado los
+> screenshots de verificación entraban en timeout, que es exactamente el jank
+> que tendría un celular barato a las 3 de la mañana.
+
+## Lo que necesita el Sheet (acción tuya)
+
+Dos columnas nuevas, ambas **opcionales** — sin ellas el catálogo se comporta
+igual que antes:
+
+| Columna | Valores | Para qué |
+|---|---|---|
+| `seccion` | texto libre | Subdivide una categoría. Si está vacía, las secciones se derivan solas por la primera palabra del nombre (los grupos de 1 caen juntos en "Otros"). Hoy tragos se auto-agrupa en Caipi (4), Gin (4), Otros (17). |
+| `unidad` | `kg` o vacío | `kg` significa que **`precio` es por kilo** y se pide por gramos. Vacío = por unidad, como siempre. |
+
+**Fiambres no tiene productos cargados en el Sheet**, así que la UI de peso está
+implementada y testeada pero no se puede ver con datos reales todavía. Cargá
+fiambres con `unidad=kg` y el precio por kilo para verla.
+
+El corte va de a **50 g**, con mínimo 100 g y default 250 g. El paso de 50 es
+para que el cuarto (250), el medio (500) y el kilo caigan justo: con paso de
+100 el cuarto no existe, y "un cuarto de jamón" es literalmente como se pide.
+
+## Lo que quedó bloqueado
+
+**View Transitions de React.** El React instalado (19.2.8 estable) no exporta
+`ViewTransition` — solo `Activity` — y este build de Next 16.3 tampoco expone el
+flag experimental. Requeriría pasar a `react@canary`, que no es una decisión
+para tomar sin vos en una app que ya está en producción. En su lugar hay
+animación de entrada por pantalla (`.page-shell`) y cascada en las grillas, que
+dan la mayor parte del efecto sin tocar dependencias. Si querés las de verdad,
+decime y evaluamos el canary.
+
+
 Documento de criterio para la pasada visual. El que implementa esto NO toca lógica:
 ni rutas, ni el store, ni `src/lib/whatsapp.ts`, ni la estructura de datos, ni el
 armado del mensaje. Solo `globals.css`, classNames, copy hardcodeado en JSX,

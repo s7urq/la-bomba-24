@@ -1,5 +1,8 @@
 import type { CategorySlug } from "@/config/categories";
 
+/** "kg" significa que `precio` es por kilo y la cantidad se cuenta en gramos. */
+export type ProductUnit = "unidad" | "kg";
+
 export interface Product {
   id: string;
   categoria: CategorySlug;
@@ -10,6 +13,9 @@ export interface Product {
   destacado: boolean;
   disponible: boolean;
   imagen: string;
+  /** Subdivisión dentro de la categoría. Vacío = se agrupa por heurística. */
+  seccion: string;
+  unidad: ProductUnit;
 }
 
 export interface DeliveryZone {
@@ -53,5 +59,8 @@ export interface CartItem {
   descripcion: string;
   precio: number;
   imagen: string;
+  /** Unidades sueltas, o gramos cuando `unidad` es "kg". */
   cantidad: number;
+  /** Opcional: los carritos ya persistidos en localStorage no lo traen. */
+  unidad?: ProductUnit;
 }

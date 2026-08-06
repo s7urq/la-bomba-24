@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import type { CategoryDefinition, CategoryLayout } from "@/config/categories";
 import { formatPesos } from "@/lib/format";
+import { DEFAULT_GRAMS, MIN_GRAMS, formatGrams } from "@/lib/pricing";
 import type { Product } from "@/types/domain";
 
 interface ProductCardProps {
@@ -49,29 +50,33 @@ export function ProductCard({
   onAdd,
 }: ProductCardProps) {
   const isList = layout === "list" || layout === "search";
+  const byWeight = product.unidad === "kg";
+  const amountLabel = byWeight ? formatGrams(quantity) : String(quantity);
 
   return (
     <button
       type="button"
-      className={`product-card product-card--${layout} ${justAdded ? "product-card--added" : ""}`}
+      className={`product-card product-card--${layout} ${byWeight ? "product-card--weighed" : ""} ${justAdded ? "product-card--added" : ""}`}
       style={
         {
-          borderColor: product.disponible ? category.accent : undefined,
+          "--card-accent": category.accent,
           "--card-accent-soft": category.accentSoft,
         } as React.CSSProperties
       }
       onClick={() => onAdd(product)}
       disabled={!product.disponible}
       aria-label={
-        product.disponible
-          ? `Agregar ${product.nombre} por ${formatPesos(product.precio)}`
-          : `${product.nombre}, no disponible`
+        !product.disponible
+          ? `${product.nombre}, no disponible`
+          : byWeight
+            ? `Agregar ${formatGrams(DEFAULT_GRAMS)} de ${product.nombre}, ${formatPesos(product.precio)} el kilo`
+            : `Agregar ${product.nombre} por ${formatPesos(product.precio)}`
       }
     >
       {!isList && (
         <div className="product-card__visual">
           <ProductVisual product={product} />
-          {quantity > 0 && <span key={quantity} className="product-count">{quantity}</span>}
+          {quantity > 0 && <span key={quantity} className="product-count">{amountLabel}</span>}
         </div>
       )}
 
@@ -82,7 +87,10 @@ export function ProductCard({
           {product.descripcion && layout !== "packshot" && <p>{product.descripcion}</p>}
         </div>
         <div className="product-card__bottom">
-          <b>{formatPesos(product.precio)}</b>
+          <b>
+            {formatPesos(product.precio)}
+            {byWeight && <i>/kg</i>}
+          </b>
           <span
             className="product-add"
             style={{ backgroundColor: product.disponible ? category.accent : undefined }}
@@ -93,7 +101,10 @@ export function ProductCard({
       </div>
 
       {isList && quantity > 0 && (
-        <span key={quantity} className="product-count product-count--list">{quantity}</span>
+        <span key={quantity} className="product-count product-count--list">{amountLabel}</span>
+      )}
+      {byWeight && product.disponible && (
+        <span className="weighed-label">Cortado al momento · desde {formatGrams(MIN_GRAMS)}</span>
       )}
       {!product.disponible && <span className="unavailable-label">No disponible</span>}
     </button>

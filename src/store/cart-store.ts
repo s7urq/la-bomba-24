@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { amountStep, clampAmount, initialAmount, isByWeight, lineTotal } from "@/lib/pricing";
 import type { CartItem, Product } from "@/types/domain";
 
 interface CartState {
@@ -30,7 +31,9 @@ export const useCartStore = create<CartState>()(
           if (current) {
             return {
               items: state.items.map((item) =>
-                item.id === product.id ? { ...item, cantidad: item.cantidad + 1 } : item,
+                item.id === product.id
+                  ? { ...item, cantidad: clampAmount(item, item.cantidad + amountStep(item)) }
+                  : item,
               ),
             };
           }
@@ -46,7 +49,8 @@ export const useCartStore = create<CartState>()(
                 descripcion: product.descripcion,
                 precio: product.precio,
                 imagen: product.imagen,
-                cantidad: 1,
+                cantidad: initialAmount(product),
+                unidad: product.unidad,
               },
             ],
           };
@@ -58,7 +62,7 @@ export const useCartStore = create<CartState>()(
             quantity <= 0
               ? state.items.filter((item) => item.id !== id)
               : state.items.map((item) =>
-                  item.id === id ? { ...item, cantidad: Math.min(quantity, 99) } : item,
+                  item.id === id ? { ...item, cantidad: clampAmount(item, quantity) } : item,
                 ),
         })),
       removeItem: (id) =>
@@ -83,6 +87,10 @@ export const useCartStore = create<CartState>()(
                 descripcion: product.descripcion,
                 precio: product.precio,
                 imagen: product.imagen,
+                unidad: product.unidad,
+                // Si la planilla cambió de unidad a peso, la cantidad vieja
+                // (1, 2) sería 1 gramo: hay que reencuadrarla.
+                cantidad: clampAmount(product, item.cantidad),
               },
             ];
           }),
@@ -100,9 +108,10 @@ export const useCartStore = create<CartState>()(
 );
 
 export function cartSubtotal(items: CartItem[]): number {
-  return items.reduce((total, item) => total + item.precio * item.cantidad, 0);
+  return items.reduce((total, item) => total + lineTotal(item), 0);
 }
 
+/** Un fiambre cuenta como un ítem, no como 500: son gramos, no productos. */
 export function cartQuantity(items: CartItem[]): number {
-  return items.reduce((total, item) => total + item.cantidad, 0);
+  return items.reduce((total, item) => total + (isByWeight(item) ? 1 : item.cantidad), 0);
 }

@@ -79,8 +79,10 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: "fiambres",
     label: "Fiambres",
     shortLabel: "Fiambres",
-    description: "Picada rápida, sin vueltas.",
-    layout: "packshot",
+    // Se cortan por peso: la lista se lee como pizarra de mostrador, que es
+    // como se pide en una fiambrería. La grilla de packshots no.
+    description: "Se cortan al momento. Elegí cuántos gramos de cada uno.",
+    layout: "list",
     accent: "#ef63b6",
     accentSoft: "#421631",
   },
