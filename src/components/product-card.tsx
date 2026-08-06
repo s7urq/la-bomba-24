@@ -54,7 +54,12 @@ export function ProductCard({
     <button
       type="button"
       className={`product-card product-card--${layout} ${justAdded ? "product-card--added" : ""}`}
-      style={{ borderColor: product.disponible ? category.accent : undefined }}
+      style={
+        {
+          borderColor: product.disponible ? category.accent : undefined,
+          "--card-accent-soft": category.accentSoft,
+        } as React.CSSProperties
+      }
       onClick={() => onAdd(product)}
       disabled={!product.disponible}
       aria-label={
@@ -66,7 +71,7 @@ export function ProductCard({
       {!isList && (
         <div className="product-card__visual">
           <ProductVisual product={product} />
-          {quantity > 0 && <span className="product-count">{quantity}</span>}
+          {quantity > 0 && <span key={quantity} className="product-count">{quantity}</span>}
         </div>
       )}
 
@@ -87,7 +92,9 @@ export function ProductCard({
         </div>
       </div>
 
-      {isList && quantity > 0 && <span className="product-count product-count--list">{quantity}</span>}
+      {isList && quantity > 0 && (
+        <span key={quantity} className="product-count product-count--list">{quantity}</span>
+      )}
       {!product.disponible && <span className="unavailable-label">No disponible</span>}
     </button>
   );

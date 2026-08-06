@@ -16,7 +16,8 @@ export function CartDock() {
     <div className="cart-dock" aria-live="polite">
       <div>
         <span>{quantity > 0 ? `${quantity} ${quantity === 1 ? "producto" : "productos"}` : "Tu pedido"}</span>
-        <strong>{formatPesos(subtotal)}</strong>
+        {/* La key reinicia la animación del total cada vez que cambia el monto. */}
+        <strong key={subtotal}>{formatPesos(subtotal)}</strong>
       </div>
       <Link href="/pedido" aria-label="Ver pedido">
         Ver pedido

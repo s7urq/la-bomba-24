@@ -67,8 +67,8 @@ export function OrderScreen() {
       ) : (
         <section className="empty-order">
           <ShoppingBag size={27} aria-hidden="true" />
-          <h2>Tu carrito está vacío</h2>
-          <p>Podés volver al catálogo o pedir algo que no figure abajo.</p>
+          <h2>Acá no hay nada</h2>
+          <p>Todavía no sumaste nada. Volvé al catálogo o escribí abajo lo que estás buscando.</p>
         </section>
       )}
 
@@ -104,7 +104,7 @@ export function OrderScreen() {
         </Link>
       ) : (
         <button className="primary-button" type="button" disabled>
-          Agregá algo para continuar
+          Sumá algo primero
           <ArrowRight size={19} aria-hidden="true" />
         </button>
       )}

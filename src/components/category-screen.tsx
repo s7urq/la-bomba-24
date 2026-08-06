@@ -63,6 +63,7 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
   function handleAdd(product: Product) {
     addProduct(product);
     setJustAdded(product.id);
+    navigator.vibrate?.(10);
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
     feedbackTimer.current = window.setTimeout(() => setJustAdded(null), 700);
   }
@@ -135,13 +136,13 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
         ) : (
           <div className="empty-catalog">
             <span>{debouncedQuery ? "0 resultados" : "Lista en preparación"}</span>
-            <h2>{debouncedQuery ? "No encontramos eso" : "Todavía no hay precios publicados acá"}</h2>
+            <h2>{debouncedQuery ? "Acá no apareció nada" : "Todavía no hay precios acá"}</h2>
             <p>
               {debouncedQuery
-                ? "Probá con la marca, el tipo de producto o una palabra más corta."
-                : "No inventamos precios. Igual podés escribirnos exactamente qué necesitás."}
+                ? "Probá con la marca o con una palabra más corta. Si no, escribilo vos y lo buscamos."
+                : "No inventamos precios. Igual escribinos qué necesitás y te lo conseguimos."}
             </p>
-            <Link href="/pedido#pedido-libre">Escribir pedido libre</Link>
+            <Link href="/pedido#pedido-libre">Escribilo en el pedido libre</Link>
           </div>
         )}
       </main>

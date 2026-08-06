@@ -77,7 +77,7 @@ export function CheckoutScreen() {
         <aside className="closed-note">
           <AlertCircle size={18} aria-hidden="true" />
           <p>
-            <strong>El delivery no figura activo ahora.</strong>
+            <strong>Ahora estamos cerrados</strong>
             <span>{data.config.mensajeCerrado || data.config.horarioTexto}</span>
           </p>
         </aside>
@@ -172,7 +172,7 @@ export function CheckoutScreen() {
         </section>
 
         {!hasOrder && hydrated && (
-          <p className="form-blocker">Tu pedido quedó vacío. Volvé y agregá un producto o un pedido libre.</p>
+          <p className="form-blocker">Te quedaste sin nada en el pedido. Volvé para atrás y sumá algo.</p>
         )}
         {!loading && data.zones.length === 0 && (
           <p className="form-blocker">Todavía no hay zonas publicadas en el Sheet. El checkout queda bloqueado.</p>

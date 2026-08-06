@@ -23,7 +23,7 @@ export function StoreHeader() {
 
         <Link className="header-cart" href="/pedido" aria-label={`Ver pedido, ${quantity} productos`}>
           <ShoppingBag aria-hidden="true" size={20} strokeWidth={2.2} />
-          {quantity > 0 && <span>{quantity}</span>}
+          {quantity > 0 && <span key={quantity}>{quantity}</span>}
         </Link>
       </div>
 
