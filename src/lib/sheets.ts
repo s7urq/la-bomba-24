@@ -4,6 +4,7 @@ import {
   parseProductsCsv,
   parseZonesCsv,
 } from "@/lib/catalog";
+import { withWhatsAppFallback } from "@/lib/store-config";
 import type {
   CatalogData,
   CatalogHealth,
@@ -16,6 +17,9 @@ const SHEET_URLS = {
   zones: process.env.NEXT_PUBLIC_SHEET_ZONAS ?? "",
   config: process.env.NEXT_PUBLIC_SHEET_CONFIG ?? "",
 };
+
+const WHATSAPP_FALLBACK = process.env.NEXT_PUBLIC_WHATSAPP ?? "";
+const STORE_CONFIG_FALLBACK = withWhatsAppFallback(EMPTY_STORE_CONFIG, WHATSAPP_FALLBACK);
 
 type SheetName = keyof typeof SHEET_URLS;
 
@@ -111,7 +115,12 @@ export async function loadCatalog(signal?: AbortSignal): Promise<{
   const [products, zones, config] = await Promise.all([
     loadSheet("products", parseProductsCsv, [], signal),
     loadSheet("zones", parseZonesCsv, [], signal),
-    loadSheet("config", parseConfigCsv, EMPTY_STORE_CONFIG, signal),
+    loadSheet(
+      "config",
+      (csv) => withWhatsAppFallback(parseConfigCsv(csv), WHATSAPP_FALLBACK),
+      STORE_CONFIG_FALLBACK,
+      signal,
+    ),
   ]);
 
   return {
