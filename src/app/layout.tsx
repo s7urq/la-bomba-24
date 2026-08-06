@@ -43,7 +43,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es-AR" className={`${anton.variable} ${spaceGrotesk.variable}`}>
+    // data-scroll-behavior le avisa a Next que el scroll suave es intencional,
+    // para que no pelee con el salto de scroll de las transiciones de ruta.
+    <html
+      lang="es-AR"
+      data-scroll-behavior="smooth"
+      className={`${anton.variable} ${spaceGrotesk.variable}`}
+    >
       <body>
         <CatalogProvider>
           <div className="app-frame">
