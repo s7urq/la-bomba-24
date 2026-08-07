@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { QuantityControl } from "@/components/quantity-control";
 import { CATEGORIES } from "@/config/categories";
 import { formatPesos } from "@/lib/format";
-import { isByWeight, lineTotal } from "@/lib/pricing";
+import { formatGrams, isByWeight, lineTotal } from "@/lib/pricing";
 import { cartSubtotal, useCartStore } from "@/store/cart-store";
 
 export function OrderScreen() {
@@ -52,7 +52,10 @@ export function OrderScreen() {
                 <div className="order-item__marker" />
                 <div className="order-item__copy">
                   <span>{item.marca || category.label}</span>
-                  <strong>{item.nombre}</strong>
+                  <strong>
+                    {item.nombre}
+                    {item.gramos !== undefined && <em> · {formatGrams(item.gramos)}</em>}
+                  </strong>
                   <b>
                     {formatPesos(lineTotal(item))}
                     {isByWeight(item) && <i>{formatPesos(item.precio)}/kg</i>}

@@ -48,12 +48,56 @@ describe("catálogo publicado", () => {
     ]);
   });
 
+  it("arma las dos presentaciones cuando la fila trae la oferta por peso", () => {
+    const csv = [
+      "categoria,marca,nombre,descripcion,precio,cant-promo,precio-promo,destacado,disponible,imagen",
+      "fiambres,,Mortadela Calchaquí,,1400,250g,3000,no,si,",
+    ].join("\n");
+
+    expect(parseProductsCsv(csv)[0].presentaciones).toEqual([
+      { gramos: 100, precio: 1400, oferta: false },
+      { gramos: 250, precio: 3000, oferta: true },
+    ]);
+  });
+
+  it("descarta la oferta cuando sale más barata que la cantidad chica", () => {
+    // Es el síntoma de una fila cargada con el precio por kilo en vez de por
+    // 100 g: mostrarla daría un botón de 250 g más barato que el de 100 g.
+    const csv = [
+      "categoria,marca,nombre,descripcion,precio,cant-promo,precio-promo,destacado,disponible,imagen",
+      "fiambres,,Fymbo,,29000,250g,24300,no,si,",
+    ].join("\n");
+
+    expect(parseProductsCsv(csv)[0].presentaciones).toEqual([
+      { gramos: 100, precio: 29000, oferta: false },
+    ]);
+  });
+
+  it("deja sin presentaciones a lo que se vende por unidad", () => {
+    const csv = [
+      "categoria,marca,nombre,descripcion,precio,cant-promo,precio-promo,destacado,disponible,imagen",
+      "cerveza,Quilmes,Latón,,3500,,,no,si,",
+    ].join("\n");
+
+    expect(parseProductsCsv(csv)[0].presentaciones).toEqual([]);
+  });
+
   it("parsea zonas completas y conserva minutos opcionales", () => {
     expect(
       parseZonesCsv("nombre,costo,pedido_minimo,minutos\nZona 1,1500,8000,25\nZona 2,2000,10000,"),
     ).toEqual([
-      { nombre: "Zona 1", costo: 1500, pedidoMinimo: 8000, minutos: 25 },
-      { nombre: "Zona 2", costo: 2000, pedidoMinimo: 10000, minutos: null },
+      { nombre: "Zona 1", costo: 1500, pedidoMinimo: 8000, minutos: 25, km: null },
+      { nombre: "Zona 2", costo: 2000, pedidoMinimo: 10000, minutos: null, km: null },
+    ]);
+  });
+
+  it("arma el nombre de la zona con el radio y las ordena de cerca a lejos", () => {
+    const csv = "zona,km,costo,pedido_minimo,minutos\n3,10,3500,20000,25\n1,3,1500,0,10\n2,5,2500,10000,20";
+
+    expect(parseZonesCsv(csv)).toEqual([
+      { nombre: "Hasta 3 km", costo: 1500, pedidoMinimo: 0, minutos: 10, km: 3 },
+      { nombre: "Hasta 5 km", costo: 2500, pedidoMinimo: 10000, minutos: 20, km: 5 },
+      { nombre: "Hasta 10 km", costo: 3500, pedidoMinimo: 20000, minutos: 25, km: 10 },
     ]);
   });
 

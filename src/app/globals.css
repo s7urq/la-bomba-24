@@ -43,10 +43,46 @@
   --dur-enter: 240ms;
   --dur-move: 320ms;
 
-  --header-height: 101px;
+  /* Sin la franja de horario el header es una sola fila. Alcanza para que el
+     logo entre grande y siga siendo una barra de navegación, no un cartel. */
+  --header-height: 72px;
   --radius: 3px;
-  --display: var(--font-display), "Arial Black", Impact, sans-serif;
+  /* Una sola familia. `--display` queda como alias para no reescribir cada
+     regla, pero ya no es otra fuente: es la misma en peso 800. */
   --sans: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  --display: var(--sans);
+
+  /* Escala tipográfica. Antes cada titular inventaba su propio clamp y por eso
+     los tamaños no se relacionaban entre sí: había tres "grandes" distintos
+     (13.5vw, 12vw, 10.5vw) que no se leían como jerarquía sino como descuido.
+
+     Cada escalón tiene un trabajo, y el trabajo depende de cuánto texto entra:
+     un título de una palabra y una frase de cuatro líneas no pueden compartir
+     tamaño por más que los dos griten. Si algo necesita un tamaño que no está
+     en esta lista, el problema es dónde está puesto, no la lista.
+
+       d1  el nombre en la portada. Único.
+       d2  título de página: ALFAJORES, TU PEDIDO.
+       d3  frase de cartel: el de "cualquier cosa".
+       d4  nombre de rubro y subtítulos.
+       d5  el número del dock.
+
+     Los tamaños bajaron cerca de un 40% respecto de la pasada anterior. Con
+     Anton, que trae un solo peso, la única forma de marcar jerarquía era
+     agrandar, y por eso todo terminaba gritando. Con una familia de 400 a 900
+     la jerarquía la hace el peso y los cuerpos pueden quedarse quietos: eso
+     es lo que separa una web de pedidos de un afiche. */
+  --d1: clamp(2.1rem, 9vw, 3.4rem);
+  --d2: clamp(1.5rem, 7vw, 2.4rem);
+  --d3: clamp(1.25rem, 5.6vw, 1.9rem);
+  --d4: clamp(0.95rem, 4vw, 1.25rem);
+  --d5: 1.15rem;
+
+  /* El texto de lectura no baja: lo que sobraba era el display. Un precio o el
+     nombre de un producto a las 3 de la mañana necesitan cuerpo. */
+  --t-body: 0.875rem;
+  --t-sm: 0.8rem;
+  --t-xs: 0.68rem;
 
   /* Alias de compatibilidad: quedan hasta que no los referencie nadie. */
   --text: var(--text-1);
@@ -216,24 +252,24 @@ p {
   view-transition-name: site-header;
 }
 
-.cart-dock {
-  view-transition-name: cart-dock;
+.moto-dock {
+  view-transition-name: moto-dock;
 }
 
 ::view-transition-group(site-header),
-::view-transition-group(cart-dock) {
+::view-transition-group(moto-dock) {
   z-index: 100;
   animation: none;
 }
 
 /* Sin esto parpadean las dos copias, la vieja y la nueva, durante el cruce. */
 ::view-transition-old(site-header),
-::view-transition-old(cart-dock) {
+::view-transition-old(moto-dock) {
   display: none;
 }
 
 ::view-transition-new(site-header),
-::view-transition-new(cart-dock) {
+::view-transition-new(moto-dock) {
   animation: none;
 }
 
@@ -246,84 +282,42 @@ p {
   text-transform: uppercase;
 }
 
+/* Costados de igual ancho: es lo único que centra la marca de verdad. Con
+   space-between quedaría centrada a ojo y se correría cada vez que aparece el
+   número del carrito. */
 .store-header {
   position: sticky;
   z-index: 50;
   top: 0;
+  display: grid;
   height: var(--header-height);
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 12px;
   background: rgba(8, 6, 13, 0.72);
   border-bottom: 1px solid var(--line-1);
   backdrop-filter: blur(22px) saturate(1.3);
 }
 
-.store-header__top {
-  display: flex;
-  height: 64px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-}
-
-/* La marca es una bomba con la mecha prendida: el nombre del local, literal.
-   El "24" va adentro del cuerpo, así el número deja de ser un badge suelto. */
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.brand__word {
-  color: var(--text-1);
-  font-family: var(--display);
-  font-size: 1.5rem;
-  letter-spacing: 0.005em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.brand__bomb {
-  position: relative;
+/* El archivo ya trae el alfa calculado desde el brillo del neón, así que no
+   necesita ningún blend: el halo se apoya solo sobre cualquier fondo. */
+.brand,
+.portada h1 {
   display: block;
-  width: 34px;
-  height: 34px;
+  line-height: 0;
 }
 
-.brand__bomb strong {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  margin-top: 4px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--yellow);
-  box-shadow: var(--glow-sm) rgba(255, 212, 71, 0.55);
-  color: #17120a;
-  font-family: var(--display);
-  font-size: 0.9rem;
-  letter-spacing: 0.01em;
-}
-
-.brand__fuse {
-  position: absolute;
-  top: -5px;
-  right: -6px;
-  width: 19px;
-  height: 19px;
-  color: var(--yellow);
-  filter: drop-shadow(0 0 5px rgba(255, 212, 71, 0.9));
-  animation: fuse-spark 1.4s var(--ease-in-out) infinite;
-}
-
-@keyframes fuse-spark {
-  50% {
-    opacity: 0.55;
-    filter: drop-shadow(0 0 9px rgba(255, 212, 71, 1));
-  }
+.brand img {
+  width: 168px;
+  height: auto;
 }
 
 .header-cart {
   position: relative;
   display: grid;
+  /* Sin esto queda centrado en su columna y se pega a la marca en vez de
+     irse al filo, que es lo que hace que el conjunto se lea descentrado. */
+  justify-self: end;
   width: 48px;
   height: 48px;
   place-items: center;
@@ -357,59 +351,325 @@ p {
   animation: count-pop var(--dur-enter) var(--ease-pop);
 }
 
-/* Franja amarilla siempre presente: el horario es un dato fijo del local, no
-   un estado. Lo que sí cambia es la chapita de la derecha. */
-.delivery-strip {
+/* ── Cartelito del horario ───────────────────────────────────────────────
+   Reemplaza la franja amarilla que cruzaba la pantalla en todas las páginas.
+   Esa barra gastaba una línea entera para repetir siempre lo mismo y empujaba
+   todo el contenido para abajo. Acá el mismo dato ocupa una esquina, y encima
+   ahora hace algo: abre el mapa. */
+.delivery-badge {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  left: 14px;
   display: flex;
-  height: 37px;
+  max-width: calc(100% - 28px);
   align-items: center;
-  justify-content: center;
-  gap: 9px;
-  padding: 0 14px;
-  overflow: hidden;
+  gap: 10px;
+  padding: 7px 13px 7px 7px;
+  border: 1px solid rgba(255, 212, 71, 0.4);
+  border-radius: 999px;
+  background: rgba(11, 8, 18, 0.82);
+  color: var(--text-1);
+  text-align: left;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(14px) saturate(1.3);
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.delivery-badge:active {
+  transform: scale(0.97);
+  border-color: var(--yellow);
+}
+
+/* La moto adentro de una chapa amarilla: el horario deja de ser una línea de
+   texto y pasa a tener cara. Es el mismo vehículo que el del carrito, así que
+   el que ya lo vio abajo entiende de una que esto habla del reparto. */
+.delivery-badge__moto {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
   background: var(--yellow);
   color: #17120a;
-  font-family: var(--display);
-  font-size: 0.84rem;
-  letter-spacing: 0.02em;
-  text-align: center;
-  text-transform: uppercase;
+  box-shadow: var(--glow-sm) rgba(255, 212, 71, 0.5);
+}
+
+.delivery-badge--activo .delivery-badge__moto {
+  animation: moto-tiembla 2.6s var(--ease-in-out) infinite;
+}
+
+/* Cuando está repartiendo, el motorcito vibra. Apagado se queda quieto: la
+   diferencia se ve de reojo, sin leer. */
+@keyframes moto-tiembla {
+  0%, 82%, 100% { transform: translateX(0) rotate(0deg); }
+  86% { transform: translateX(1.5px) rotate(3deg); }
+  90% { transform: translateX(-1.5px) rotate(-3deg); }
+  94% { transform: translateX(1px) rotate(2deg); }
+}
+
+.delivery-badge__texto {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.delivery-badge__texto strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.delivery-strip b {
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #17120a;
-  color: var(--yellow);
-  font-family: var(--sans);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+/* La "a" en minúscula y apagada: separa los dos números sin pesar como si
+   fuera parte del horario. */
+.delivery-badge__texto strong i {
+  color: var(--text-3);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
 }
 
-.delivery-strip--active b {
-  background: #06240f;
-  color: #6ef29a;
+.delivery-badge__texto small {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-2);
+  font-size: 0.66rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.delivery-dot {
-  width: 8px;
-  height: 8px;
+.delivery-badge__dot {
+  width: 6px;
+  height: 6px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: rgba(23, 18, 10, 0.35);
+  background: var(--text-4);
 }
 
-.delivery-strip--active .delivery-dot {
-  background: #0a6b2c;
-  box-shadow: 0 0 0 4px rgba(10, 107, 44, 0.22);
+.delivery-badge--activo .delivery-badge__dot {
+  background: var(--green);
+  box-shadow: var(--glow-sm) var(--green);
   animation: live-pulse 1.8s infinite;
 }
 
+.delivery-badge--activo .delivery-badge__texto small {
+  color: var(--green);
+}
+
 @keyframes live-pulse {
-  50% { opacity: 0.55; }
+  50% { opacity: 0.45; }
+}
+
+/* ── Mapa ────────────────────────────────────────────────────────────────
+   <dialog> nativo: trae gratis el cierre con Escape, el foco atrapado adentro
+   y el resto de la página marcado como inerte. Hacer eso a mano con un div
+   son cien líneas de JS que se rompen solas. */
+.mapa-modal {
+  width: min(100% - 24px, 460px);
+  max-width: none;
+  /* El <dialog> nativo centra con margin auto, pero cualquier margin que se
+     declare después lo pisa. Va explícito para no depender del orden. */
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line-3);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+  color: var(--text-1);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+.mapa-modal::backdrop {
+  background: rgba(4, 2, 8, 0.82);
+  backdrop-filter: blur(3px);
+}
+
+.mapa-modal__caja > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+.mapa-modal__caja h2 {
+  margin: 3px 0 2px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.mapa-modal__caja > header p:not(.eyebrow) {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--t-sm);
+}
+
+.mapa-modal__caja > header button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+/* Cuadrado a propósito: el recuadro que se le pide a OpenStreetMap mide lo
+   mismo en metros a lo ancho y a lo alto, así que sólo dentro de un contenedor
+   cuadrado los anillos salen redondos y a escala. Con cualquier otra
+   proporción se deformarían en óvalos y marcarían distancias falsas.
+
+   La atribución va adentro del iframe y no se puede maquetar desde acá — ni
+   corresponde, la licencia la exige. */
+.mapa-modal__mapa {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--field);
+  border-block: 1px solid var(--line-2);
+}
+
+.mapa-lienzo {
+  width: 100%;
+  height: 100%;
+  background: var(--field);
+}
+
+.mapa-lienzo .leaflet-container {
+  background: var(--field);
+}
+
+/* Etiqueta de cada anillo. `width: max-content` con la traslación negativa la
+   centra sobre el borde del círculo: el divIcon de Leaflet no tiene tamaño
+   declarado, así que la posición la resuelve el CSS. */
+.mapa-tip {
+  width: max-content;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 212, 71, 0.55);
+  border-radius: 999px;
+  background: rgba(11, 8, 18, 0.92);
+  color: var(--yellow);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 800;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.mapa-lienzo .leaflet-control-attribution {
+  background: rgba(11, 8, 18, 0.8);
+  color: var(--text-3);
+  font-size: 0.58rem;
+}
+
+.mapa-lienzo .leaflet-control-attribution a {
+  color: var(--text-2);
+}
+
+.mapa-zonas {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.mapa-zonas li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-1);
+}
+
+.mapa-zonas li:last-child {
+  border-bottom: 0;
+}
+
+.mapa-zonas strong {
+  flex: 0 0 auto;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.mapa-zonas span {
+  color: var(--text-3);
+  font-size: var(--t-xs);
+  text-align: right;
+}
+
+.mapa-modal__mapa iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* El mapa viene en blanco y sobre esta paleta pega como un flash. */
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95);
+}
+
+.mapa-modal__caja > footer {
+  padding: 14px 16px 16px;
+}
+
+.mapa-modal__caja > footer p {
+  margin: 0 0 12px;
+  color: var(--text-2);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+
+/* El horario es el dato por el que se abre esta ventana: si está en el mismo
+   cuerpo que la aclaración de abajo, hay que buscarlo. */
+.mapa-modal__horario {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px !important;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-1);
+}
+
+.mapa-modal__horario b {
+  color: var(--text-3);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mapa-modal__horario strong {
+  color: var(--yellow);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.7rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 0 22px rgba(255, 212, 71, 0.4);
+}
+
+.mapa-modal__caja > footer a {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  background: var(--yellow);
+  color: #17120a;
+  font-size: var(--t-sm);
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 /* Home */
@@ -418,61 +678,322 @@ p {
   padding-inline: 0;
 }
 
-.home-hero {
-  position: relative;
-  min-height: 318px;
-  padding: 43px 16px 28px;
-  overflow: hidden;
-  border-bottom: 1px solid var(--line);
-  background:
-    linear-gradient(145deg, transparent 0 58%, rgba(255, 116, 56, 0.08) 58% 70%, transparent 70%),
-    radial-gradient(circle at 85% 25%, rgba(169, 112, 255, 0.22), transparent 10rem);
+/* La moto flota sobre el contenido, así que cuando aparece hay que devolverle
+   ese alto al final de la página. Es condicional porque con el carrito vacío
+   la moto no está y el hueco quedaría de gusto. */
+.home-page--con-moto {
+  padding-bottom: 150px;
 }
 
-.home-hero::after {
+/* ── Portada ──────────────────────────────────────────────────────────────
+   La ventanilla real por la que atienden, recortada al hueco. Es una franja
+   baja y no una pantalla entera a propósito: ocupando todo, lo primero que ve
+   el que entra es una foto y nada para tocar, y los rubros quedaban tan abajo
+   que había que scrollear para descubrir que la página vendía algo.
+
+   Todo el texto va alineado a la derecha, del lado contrario al del tipo que
+   se asoma por la ventanilla: así ninguno de los dos le pisa la cara al otro. */
+
+.portada {
+  position: relative;
+  display: flex;
+  /* Ni pantalla completa ni franja: lo justo para que entren los cinco
+     carteles con la foto respirando arriba, y que el cartel amarillo de abajo
+     ya asome sin tener que scrollear. */
+  min-height: clamp(430px, 68vh, 620px);
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px 16px 26px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-2);
+  text-align: right;
+}
+
+.portada__fondo {
   position: absolute;
-  right: -66px;
-  bottom: -81px;
-  width: 220px;
-  height: 220px;
-  border: 1px solid rgba(255, 212, 71, 0.45);
-  border-radius: 50%;
+  inset: 0;
+}
+
+/* La foto es atmósfera, no protagonista. Entró de día, con carteles amarillo y
+   rojo a pleno sol que le ganaban a todo. Baja fuerte para que quede como
+   textura del lugar y para que Lucas sea lo único que se vea "de verdad": esa
+   diferencia de luz entre él y el fondo es toda la jerarquía de la portada. */
+/* Menos apagada que antes: cuando la foto ocupaba la pantalla entera había que
+   hundirla para que no se comiera todo, pero ahora es una franja baja y lo que
+   se quiere ver es justamente el hueco por el que atienden. */
+/* El recorte del archivo ya viene en la proporción de la portada, así que
+   `cover` no descarta nada y no hace falta correr el encuadre. */
+.portada__fondo img {
+  object-fit: cover;
+  filter: saturate(0.72) contrast(1.02) brightness(0.72);
+}
+
+/* El velo no decora: la ventanilla tiene carteles amarillo y rojo a pleno sol
+   y adentro está oscuro. Sin esto el contraste de la foto se come cualquier
+   texto. Liviano arriba (que se vean los carteles de oferta, que son lo mejor
+   que tiene la foto) y cerrando fuerte abajo, donde va todo lo que se lee. */
+.portada__velo {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 6, 13, 0.55) 0 12%,
+      rgba(8, 6, 13, 0.45) 30%,
+      rgba(8, 6, 13, 0.9) 64%,
+      rgba(8, 6, 13, 0.97) 88%
+    ),
+    radial-gradient(120% 50% at 50% 118%, rgba(8, 6, 13, 0.9), transparent 60%);
+}
+
+.portada__contenido {
+  position: relative;
+  z-index: 2;
+}
+
+.portada h1 {
+  position: relative;
+  width: min(78%, 290px);
+  margin: 0 0 0 auto;
+}
+
+/* El pozo oscuro que necesita el logo va acá y no en el velo: el neón es un
+   trazo fino y hueco, y sobre la heladera roja de la foto pierde el contorno.
+   Puesto como cuarta capa del velo —que ocupa toda la portada— el compositor
+   tenía que rehacer esa superficie en cada scroll; acá es una caja de 290px
+   que no se mueve. */
+.portada h1::before {
+  position: absolute;
+  z-index: -1;
+  inset: -26% -12%;
+  background: radial-gradient(closest-side, rgba(8, 6, 13, 0.92), transparent);
   content: "";
 }
 
-.home-hero h1 {
-  margin: 12px 0 16px;
-  font-family: var(--display);
-  font-size: clamp(1.95rem, 8.7vw, 3.95rem);
-  font-weight: 950;
-  line-height: 0.92;
-  letter-spacing: 0.012em;
+.portada h1 img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.home-hero h1 span {
-  display: block;
-  color: var(--text);
+/* Sombra propia: cae sobre la parte de la foto que el velo deja más clara, y
+   lo que hay atrás cambia con cada foto que se cargue. */
+.portada__donde {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 9px 0 0;
+  color: var(--text-2);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  text-shadow:
+    0 0 4px rgba(8, 6, 13, 0.9),
+    0 1px 12px rgba(8, 6, 13, 0.95);
+}
+
+.portada__donde svg {
+  color: var(--yellow);
+}
+
+.portada__promesa {
+  margin: 10px 0 0;
+  color: var(--yellow);
+  font-size: var(--d3);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-shadow:
+    0 0 26px rgba(255, 212, 71, 0.45),
+    0 1px 12px rgba(8, 6, 13, 0.9);
+}
+
+/* ── Rubros principales ──────────────────────────────────────────────────
+   Cuadrados grandes con la foto de cada rubro. La foto hace el trabajo que
+   antes le pedíamos al tamaño de la tipografía: se reconoce de un vistazo, sin
+   leer, que es lo que hace falta a las tres de la mañana. */
+.rubros-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 16px 0;
+}
+
+/* Flotan: se despegan del fondo con sombra propia en vez de estar pegados uno
+   al lado del otro como baldosas. La sombra hace el trabajo que antes hacía el
+   tamaño — se leen como objetos aunque sean más chicos. */
+.rubro-cover {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1.12;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    border-color var(--dur-micro) var(--ease-out),
+    box-shadow var(--dur-micro) var(--ease-out);
+}
+
+/* Impar y último: se lleva la fila entera en vez de dejar un hueco al lado. */
+.rubro-cover:nth-child(odd):last-child {
+  grid-column: 1 / -1;
+  aspect-ratio: 2.6;
+}
+
+.rubro-cover img {
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.04);
+  transition: transform var(--dur-enter) var(--ease-out);
+}
+
+.rubro-cover:active {
+  transform: translateY(1px) scale(0.985);
+  border-color: var(--accent);
+  box-shadow:
+    var(--glow-md) color-mix(in srgb, var(--accent) 38%, transparent),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.rubro-cover:active img {
+  transform: scale(1.04);
+}
+
+.rubro-cover__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 6, 13, 0.06) 34%, rgba(8, 6, 13, 0.92) 100%);
+}
+
+.rubro-cover__pie {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  padding: 12px;
+}
+
+.rubro-cover__pie > span {
+  grid-column: 1 / -1;
+  margin-bottom: 3px;
+  color: var(--accent);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rubro-cover__pie strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.home-hero h1 b {
-  color: var(--violet);
-  font-weight: inherit;
+.rubro-cover__pie svg {
+  color: var(--accent);
 }
 
-.home-hero > p:not(.eyebrow) {
-  max-width: 310px;
-  margin: 0;
-  color: var(--text-2);
-  font-size: 0.86rem;
-  line-height: 1.5;
+/* El pedido libre, al final de todo el catálogo. */
+.pedilo-igual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 26px 16px 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 212, 71, 0.42);
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, rgba(255, 212, 71, 0.1), var(--surface-1) 72%);
+  transition: transform var(--dur-press) var(--ease-out);
 }
 
-.home-hero__arrow {
-  position: absolute;
-  right: 23px;
-  bottom: 28px;
+.pedilo-igual:active {
+  transform: scale(0.99);
+}
+
+.pedilo-igual strong {
+  display: block;
   color: var(--yellow);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pedilo-igual p {
+  margin: 3px 0 0;
+  color: var(--text-2);
+  font-size: var(--t-sm);
+}
+
+.pedilo-igual svg {
+  flex: 0 0 auto;
+  color: var(--yellow);
+}
+
+.cartel {
+  position: relative;
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 15px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, var(--accent-soft), rgba(11, 8, 18, 0.84) 76%);
+  box-shadow:
+    var(--glow-md) color-mix(in srgb, var(--accent) 22%, transparent),
+    0 8px 22px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
+}
+
+.cartel strong {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: var(--d3);
+  letter-spacing: -0.015em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cartel svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+/* Globo colgado del cartel. Va sólo donde hay algo que otro kiosco no tiene:
+   si lo llevaran todos dejaría de significar nada. */
+.cartel__nota {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--accent);
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cartel:active {
+  transform: scale(0.97);
+  box-shadow: var(--glow-lg) color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 .section-heading {
@@ -493,79 +1014,6 @@ p {
 
 .section-heading span {
   color: var(--text-4);
-}
-
-.primary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 0 8px;
-}
-
-.category-cover {
-  position: relative;
-  min-width: 0;
-  aspect-ratio: 0.77;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  border-radius: var(--radius);
-  background: var(--accent-soft);
-  transition: border-color var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
-}
-
-.category-cover:active {
-  border-color: var(--accent);
-  box-shadow: var(--glow-md) color-mix(in srgb, var(--accent) 40%, transparent);
-}
-
-.category-cover img {
-  object-fit: cover;
-  filter: saturate(0.88) contrast(1.05);
-  transition: transform var(--dur-enter) var(--ease-out), filter var(--dur-enter) var(--ease-out);
-}
-
-.category-cover:active img {
-  transform: scale(1.035);
-  filter: saturate(1.05) contrast(1.08);
-}
-
-.category-cover__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.9) 100%);
-}
-
-.category-cover__content {
-  position: absolute;
-  inset: auto 0 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  padding: 12px;
-}
-
-.category-cover__content > span {
-  grid-column: 1 / -1;
-  margin-bottom: 4px;
-  color: var(--text-2);
-  font-size: 0.6rem;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.category-cover__content strong {
-  overflow: hidden;
-  font-family: var(--display);
-  font-size: clamp(1.02rem, 5.2vw, 1.8rem);
-  letter-spacing: 0.012em;
-  line-height: 0.95;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-}
-
-.category-cover__content svg {
-  color: var(--accent);
 }
 
 /* Esto no es un banner más: es lo único que este kiosco tiene y una app de
@@ -601,16 +1049,19 @@ p {
   text-transform: uppercase;
 }
 
-/* El tubo de neón. El quiebre a tres líneas es intencional: un cartel de
-   kiosco se lee de un saque, no como una oración. */
+/* El tubo de neón. El quiebre en varias líneas es intencional —un cartel de
+   kiosco se lee de un saque, no como una oración— pero a 7ch caía en cuatro
+   renglones amontonados con el interlineado cerrado. Con 11ch entra
+   "TE LLEVAMOS" completo y el corte queda donde lo haría una persona. */
 .anything-banner strong {
   display: block;
-  max-width: 7ch;
+  max-width: 11ch;
   color: var(--yellow);
   font-family: var(--display);
-  font-size: clamp(2.1rem, 10.5vw, 3.6rem);
-  letter-spacing: 0.012em;
-  line-height: 0.9;
+  font-weight: 800;
+  font-size: var(--d3);
+  letter-spacing: -0.015em;
+  line-height: 1.02;
   text-transform: uppercase;
   text-shadow:
     0 0 24px rgba(255, 212, 71, 0.55),
@@ -644,47 +1095,104 @@ p {
   box-shadow: var(--glow-md) rgba(255, 212, 71, 0.5);
 }
 
+.section-eyebrow {
+  padding: 4px 16px 10px;
+}
+
+/* Lucas al costado y los rubros en una columna a su derecha. Antes ocupaba
+   media pantalla con las categorías debajo: se llevaba todo el aire para no
+   decir nada. Acá sigue presente, pero el que manda es el listado. */
+.rubros-fila {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.rubros-fila__lucas {
+  width: auto;
+  height: 208px;
+  flex: 0 0 auto;
+  margin-left: -30px;
+  filter:
+    saturate(0.92) contrast(1.04) brightness(0.9)
+    drop-shadow(10px 4px 18px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 30px rgba(169, 112, 255, 0.24));
+  pointer-events: none;
+}
+
 .secondary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-  padding: 0 8px;
-}
-
-.secondary-grid a {
-  display: grid;
-  min-height: 74px;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 8px;
-  padding: 11px;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--accent-soft), var(--surface-1) 68%);
-}
-
-.secondary-grid span {
-  color: var(--accent);
-  font-size: 0.59rem;
-  font-weight: 850;
-}
-
-.secondary-grid strong {
+  display: flex;
   min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Fila de lista, no baldosa: nombre a la izquierda, flecha a la derecha y una
+   miniatura cuando hay foto. Es la forma en que un catálogo muestra rubros
+   secundarios sin robarle protagonismo a los principales. */
+.rubro-tile {
+  position: relative;
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
   overflow: hidden;
-  font-size: 0.79rem;
-  letter-spacing: -0.02em;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: var(--radius);
+  background: linear-gradient(100deg, var(--accent-soft), var(--surface-1) 72%);
+  transition: transform var(--dur-press) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.rubro-tile__foto {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.rubro-tile img {
+  object-fit: cover;
+  filter: saturate(0.85) contrast(1.04) brightness(0.88);
+}
+
+.rubro-tile strong {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
   text-overflow: ellipsis;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.secondary-grid svg {
+/* Sin miniatura el nombre necesita el mismo margen que le daría la foto, o la
+   fila queda pegada al borde y se nota el desalineo con las que sí tienen. */
+.rubro-tile:not(:has(.rubro-tile__foto)) strong {
+  padding-left: 6px;
+}
+
+.rubro-tile svg {
+  flex: 0 0 auto;
   color: var(--accent);
+}
+
+.rubro-tile:active {
+  transform: scale(0.98);
+  box-shadow: var(--glow-md) color-mix(in srgb, var(--accent) 38%, transparent);
 }
 
 .home-footer {
-  margin-top: 36px;
-  padding: 28px 16px 2px;
+  margin-top: 32px;
+  padding: 26px 16px 4px;
   border-top: 1px solid var(--line-1);
   color: var(--text-4);
 }
@@ -697,6 +1205,27 @@ p {
 .home-footer p {
   margin: 5px 0 0;
   font-size: 0.7rem;
+}
+
+/* La dirección no es letra chica de pie de página: es el dato que busca el
+   que quiere pasar a buscarlo en vez de esperar la moto. */
+.home-footer__direccion {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 8px !important;
+  color: var(--text-1) !important;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.05rem !important;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.home-footer__direccion svg {
+  flex: 0 0 auto;
+  color: var(--yellow);
 }
 
 /* Avisos y navegación */
@@ -774,8 +1303,10 @@ p {
 
 /* Categorías y productos */
 
+/* La moto sobresale arriba del panel, así que la última card necesita más aire
+   que con el dock viejo para no quedar tapada. */
 .category-page {
-  padding-bottom: 148px;
+  padding-bottom: 150px;
 }
 
 .category-heading {
@@ -788,9 +1319,10 @@ p {
   margin: 4px 0 6px;
   color: var(--category-accent);
   font-family: var(--display);
-  font-size: clamp(2.6rem, 13.5vw, 5.4rem);
-  letter-spacing: 0.012em;
-  line-height: 0.92;
+  font-weight: 800;
+  font-size: var(--d2);
+  letter-spacing: -0.015em;
+  line-height: 1;
   text-transform: uppercase;
   text-shadow:
     0 0 28px color-mix(in srgb, var(--category-accent) 50%, transparent),
@@ -991,6 +1523,7 @@ p {
 .product-placeholder span {
   color: color-mix(in srgb, var(--card-accent, #fff) 22%, transparent);
   font-family: var(--display);
+  font-weight: 800;
   font-size: 3.5rem;
 }
 
@@ -1143,6 +1676,7 @@ p {
   border-bottom: 1px solid var(--line-1);
   color: var(--category-accent);
   font-family: var(--display);
+  font-weight: 800;
   font-size: 0.86rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1184,6 +1718,130 @@ p {
 
 .product-card--weighed .product-card__body {
   padding-bottom: 28px;
+}
+
+/* ── Presentaciones ──────────────────────────────────────────────────────
+   Los fiambres se venden en dos medidas con precio cerrado: los 100 g de
+   lista y los 250 g en oferta. Cada una es un botón, porque tocar "la card"
+   no significa nada cuando primero hay que decidir cuánto. */
+.product-card--porciones {
+  cursor: default;
+}
+
+/* El nombre arriba y los botones abajo a todo el ancho. En la fila de la
+   lista, con el nombre al lado, los botones quedaban tan angostos que "100 g"
+   se partía en dos renglones. */
+.product-card--porciones .product-card__body {
+  display: block;
+  min-height: 0;
+  padding: 9px 10px 10px;
+}
+
+.product-card--porciones .product-card__copy {
+  display: block;
+}
+
+.product-card--porciones .product-card__copy strong {
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.porciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+/* Fila, no ficha: la medida y el precio en un solo renglón. Apilados en dos
+   líneas cada botón medía 54px y con veintitrés fiambres la categoría se hacía
+   interminable — hay que poder barrerla con el pulgar. */
+.porcion {
+  position: relative;
+  display: flex;
+  min-height: 40px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--field);
+  color: var(--text-1);
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.porcion span {
+  min-width: 0;
+  color: var(--text-3);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.porcion b {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* La oferta se distingue por el acento de la categoría, no por un color
+   nuevo: el verde ya es de WhatsApp y el amarillo de avanzar. */
+.porcion--oferta {
+  border-color: var(--card-accent);
+  background: linear-gradient(140deg, var(--card-accent-soft), var(--field) 78%);
+}
+
+/* Va en el flujo, no flotando sobre el borde. Como chapa absoluta se le montaba
+   al precio o a los gramos según dónde la pusiera: en una fila de 40px de alto
+   no hay lugar libre para colgar nada encima. Adentro del renglón el navegador
+   reserva el espacio y el problema desaparece. */
+.porcion em {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--card-accent);
+  color: #100a18;
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
+/* Cuántas de esa medida ya están en el pedido. Va arriba a la izquierda: a la
+   derecha está la chapa de oferta y abajo el precio. */
+.porcion i {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--card-accent);
+  color: #100a18;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+  animation: count-pop var(--dur-enter) var(--ease-pop);
+}
+
+.porcion:active {
+  transform: scale(0.96);
+  border-color: var(--card-accent);
+}
+
+.porcion:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .weighed-label {
@@ -1266,9 +1924,10 @@ p {
 .not-found-page h1 {
   margin: 10px 0;
   font-family: var(--display);
+  font-weight: 800;
   font-size: 2rem;
-  letter-spacing: 0.012em;
-  line-height: 0.95;
+  letter-spacing: -0.015em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -1291,50 +1950,275 @@ p {
   text-underline-offset: 4px;
 }
 
-.cart-dock {
+/* ── La moto ──────────────────────────────────────────────────────────────
+   El carrito no es un carrito: es la moto de Willy esperando. Flota separada
+   del borde en vez de ser una barra pegada abajo — una barra full-bleed es
+   justamente el mueble de app de delivery del que esto se quiere despegar.
+
+   El wheelie no es un estado permanente (cansa a los treinta segundos) sino
+   la reacción a que le tires algo adentro: se lo gana cada vez. */
+
+.moto-dock {
   position: fixed;
   z-index: 60;
   right: 50%;
   bottom: 0;
   display: flex;
   width: min(100%, 720px);
-  min-height: 84px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px calc(10px + env(safe-area-inset-bottom));
   transform: translateX(50%);
-  /* Vidrio sobre luz: el filo superior es la fuente, el degradado es el
-     derrame de esa fuente sobre el panel. */
-  border-top: 1px solid rgba(255, 212, 71, 0.55);
-  background:
-    linear-gradient(180deg, rgba(255, 212, 71, 0.08), transparent 42%),
-    rgba(11, 8, 18, 0.72);
-  box-shadow:
-    0 -1px 0 rgba(255, 212, 71, 0.3),
-    var(--glow-lg) rgba(255, 212, 71, 0.15),
-    0 -20px 50px rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(24px) saturate(1.4);
+  /* El aire entre la moto y el panel deja pasar el toque al catálogo de atrás:
+     si no, media pantalla queda muerta por una burbuja que es decorativa. */
+  pointer-events: none;
 }
 
-.cart-dock > div {
+.moto__cabecera {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding-inline: 2px;
+}
+
+.moto__vehiculo {
+  width: 70px;
+  flex: 0 0 auto;
+  color: var(--yellow);
+  /* Flota siempre. Una moto quieta se lee como ícono; una que se mueve un
+     poco se lee como alguien esperando con el motor prendido. */
+  animation: moto-flota 3.4s var(--ease-in-out) infinite;
+}
+
+.moto__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* El wheelie se sale del viewBox: sin esto la rueda delantera se corta. */
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(255, 212, 71, 0.28));
+}
+
+.moto__chasis path,
+.moto__repartidor path,
+.moto__rayos path,
+.moto__estela path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.moto__chasis path { stroke-width: 7; }
+
+/* El torso va grueso a propósito: con línea fina el casco queda flotando como
+   una pelota suelta en vez de leerse como alguien manejando. */
+.moto__repartidor--cuerpo path { stroke-width: 13; }
+.moto__repartidor--cuerpo circle { fill: currentColor; }
+
+/* El contorno negro corta contra el cuerpo de la moto y despega al que maneja.
+   Va del color del panel, no negro puro: sobre el vidrio se nota el corte. */
+.moto__repartidor--borde path {
+  stroke: #0b0812;
+  stroke-width: 22;
+}
+
+.moto__repartidor--borde circle {
+  fill: #0b0812;
+  stroke: #0b0812;
+  stroke-width: 9;
+}
+
+.moto__cuerpo,
+.moto__motor,
+.moto__caja rect {
+  fill: currentColor;
+}
+
+.moto__caja path { fill: none; stroke: #17120a; stroke-width: 2.5; }
+
+/* Goma gorda: el ancho del trazo ES el perfil del neumático. */
+.moto__rueda circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+}
+
+.moto__faro circle {
+  fill: #fffdf2;
+  filter: drop-shadow(0 0 7px rgba(255, 253, 242, 0.9));
+}
+
+.moto__rayos path {
+  stroke-width: 3;
+  opacity: 0.5;
+}
+
+/* Los rayos giran sobre el centro de su propia rueda. `fill-box` mide la caja
+   del grupo, que por cómo están dibujados los rayos es exactamente el eje. */
+.moto__rayos {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: moto-gira 1.4s linear infinite;
+}
+
+.moto__rayos--delantera {
+  animation-duration: 1.15s;
+}
+
+/* Estela y humo aparecen solo en el wheelie: si estuvieran siempre, el
+   arranque no tendría con qué diferenciarse. */
+.moto__estela,
+.moto__humo {
+  opacity: 0;
+}
+
+.moto__humo circle {
+  fill: rgba(181, 174, 203, 0.5);
+}
+
+/* El wheelie pivota sobre el eje trasero, que en el viewBox está en 46,96.
+   Pivotar sobre el centro de la caja daría un balanceo de juguete. */
+.moto__rig {
+  transform-box: view-box;
+  transform-origin: 46px 96px;
+}
+
+.moto-dock--wheelie .moto__rig {
+  animation: moto-wheelie var(--wheelie-dur) var(--ease-pop);
+}
+
+.moto-dock--wheelie .moto__estela {
+  animation: moto-estela var(--wheelie-dur) var(--ease-out);
+}
+
+.moto-dock--wheelie .moto__humo {
+  animation: moto-humo var(--wheelie-dur) var(--ease-out);
+}
+
+.moto-dock--wheelie .moto__rayos {
+  animation-duration: 0.4s;
+}
+
+.moto-dock {
+  --wheelie-dur: 950ms;
+}
+
+@keyframes moto-flota {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes moto-gira {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes moto-wheelie {
+  0% { transform: rotate(0deg); }
+  28% { transform: rotate(-26deg); }
+  62% { transform: rotate(-20deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes moto-estela {
+  0% { opacity: 0; transform: translateX(14px); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateX(-10px); }
+}
+
+@keyframes moto-humo {
+  0% { opacity: 0.7; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0; transform: translate(-22px, -14px) scale(1.5); }
+}
+
+.moto__burbuja {
+  position: relative;
+  min-width: 0;
+  margin: 0 0 10px;
+  padding: 8px 11px;
+  border: 1px solid var(--line-3);
+  border-radius: var(--radius);
+  background: rgba(17, 13, 24, 0.92);
+  color: var(--text-1);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  line-height: 1.35;
+  backdrop-filter: blur(12px);
+}
+
+/* La cola apunta abajo a la izquierda, contra la moto: sin eso la burbuja
+   flota suelta y no se sabe quién habla. */
+.moto__burbuja::after {
+  position: absolute;
+  bottom: -6px;
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid var(--line-3);
+  border-bottom: 1px solid var(--line-3);
+  background: rgba(17, 13, 24, 0.92);
+  content: "";
+  transform: rotate(45deg);
+}
+
+/* La entrada mueve, no aparece. Antes el keyframe arrancaba en `opacity: 0`
+   y hubo casos donde ese estado inicial quedaba aplicado de forma
+   permanente: la frase existía en el DOM, se leía por accesibilidad, y en
+   pantalla no había nada.
+
+   Que un texto sólo sea visible si una animación llega hasta el final es una
+   dependencia que no hay razón para aceptar. Animando únicamente el
+   desplazamiento, el peor caso es que la frase no se deslice — nunca que
+   desaparezca. Encima es más barato de componer. */
+.moto__burbuja span {
+  display: block;
+  animation: frase-entra var(--dur-enter) var(--ease-out);
+}
+
+@keyframes frase-entra {
+  from { transform: translateY(6px); }
+  to { transform: none; }
+}
+
+.moto__panel {
+  display: grid;
+  min-height: 58px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 16px;
+  /* Vidrio sobre luz: el filo es la fuente, el degradado es el derrame. */
+  border: 1px solid rgba(255, 212, 71, 0.5);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 212, 71, 0.09), transparent 46%),
+    rgba(11, 8, 18, 0.82);
+  box-shadow:
+    var(--glow-lg) rgba(255, 212, 71, 0.15),
+    0 14px 38px rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(24px) saturate(1.4);
+  pointer-events: auto;
+}
+
+.moto__cuenta {
   display: flex;
   min-width: 0;
   flex-direction: column;
 }
 
-.cart-dock span {
+.moto__cuenta span {
   color: var(--text-3);
-  font-size: 0.6rem;
+  font-size: var(--t-xs);
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
-.cart-dock strong {
+.moto__cuenta strong {
   margin-top: 1px;
   font-family: var(--display);
-  font-size: 1.55rem;
+  font-weight: 800;
+  font-size: var(--d5);
   letter-spacing: 0.01em;
   line-height: 1;
   animation: total-pop var(--dur-enter) var(--ease-pop);
@@ -1346,17 +2230,17 @@ p {
   100% { color: var(--text); transform: scale(1); }
 }
 
-.cart-dock a {
+.moto__panel a {
   display: inline-flex;
-  min-height: 52px;
+  min-height: 44px;
   flex: 0 0 auto;
   align-items: center;
-  gap: 9px;
-  padding: 0 22px;
+  gap: 7px;
+  padding: 0 16px;
   border-radius: var(--radius);
   background: var(--yellow);
   color: #17120a;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: -0.01em;
   text-transform: uppercase;
@@ -1364,7 +2248,7 @@ p {
   transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
 }
 
-.cart-dock a:active {
+.moto__panel a:active {
   transform: scale(0.97);
   box-shadow: var(--glow-sm) rgba(255, 212, 71, 0.6);
 }
@@ -1383,9 +2267,10 @@ p {
 .order-heading h1 {
   margin: 8px 0 12px;
   font-family: var(--display);
-  font-size: clamp(2.35rem, 12vw, 4.7rem);
-  letter-spacing: 0.012em;
-  line-height: 0.92;
+  font-weight: 800;
+  font-size: var(--d2);
+  letter-spacing: -0.015em;
+  line-height: 1;
 }
 
 .order-heading h1 span {
@@ -1492,6 +2377,7 @@ p {
 .quantity-control span {
   color: var(--text);
   font-family: var(--display);
+  font-weight: 800;
   font-size: 0.85rem;
   letter-spacing: 0.01em;
   text-align: center;
@@ -1540,9 +2426,10 @@ p {
   margin-bottom: 12px;
   color: var(--yellow);
   font-family: var(--display);
+  font-weight: 800;
   font-size: 1.6rem;
-  letter-spacing: 0.012em;
-  line-height: 0.92;
+  letter-spacing: -0.015em;
+  line-height: 1;
   text-transform: uppercase;
   text-shadow: 0 0 22px rgba(255, 212, 71, 0.45);
 }
@@ -1677,6 +2564,7 @@ p {
 
 .closed-note strong {
   font-family: var(--display);
+  font-weight: 800;
   font-size: 1.05rem;
   letter-spacing: 0.01em;
   line-height: 1;
@@ -1884,20 +2772,27 @@ p {
     padding-inline: 0;
   }
 
-  .store-header__top,
-  .home-hero,
+  .store-header,
+  .portada,
+  .section-eyebrow,
   .section-heading {
     padding-inline: 24px;
   }
 
-  .primary-grid,
-  .secondary-grid {
-    gap: 12px;
-    padding-inline: 16px;
+  .rubros-fila {
+    gap: 16px;
+    padding-inline: 24px;
   }
 
-  .category-cover__content {
-    padding: 16px;
+  /* Con más ancho Lucas puede crecer y los carteles dejan de quedar pegados
+     contra el borde derecho. */
+  .portada__carteles {
+    max-width: 66%;
+  }
+
+  .rubros-fila__lucas {
+    height: 268px;
+    margin-left: 0;
   }
 
   .anything-banner {
@@ -1918,9 +2813,6 @@ p {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .secondary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 /* Se saca el desplazamiento, que es lo que dispara la sensibilidad al
@@ -1947,7 +2839,7 @@ p {
   .product-card,
   .primary-button,
   .whatsapp-button,
-  .cart-dock a,
+  .moto__panel a,
   .category-cover img {
     transition-property: background-color, border-color, color, opacity, filter;
   }

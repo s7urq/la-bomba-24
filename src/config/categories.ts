@@ -8,7 +8,7 @@ export const CATEGORY_SLUGS = [
   "golosinas",
   "gaseosas",
   "almacen",
-  "bazar",
+  "vinoteca",
 ] as const;
 
 export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
@@ -23,6 +23,8 @@ export interface CategoryDefinition {
   accent: string;
   accentSoft: string;
   image?: string;
+  /** Globo sobre el cartel. Sólo para lo que este kiosco tiene y otro no. */
+  nota?: string;
 }
 
 export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
@@ -35,6 +37,7 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     accent: "#a970ff",
     accentSoft: "#2b1749",
     image: "/categorias/tragos.webp",
+    nota: "Barra propia",
   },
   alfajores: {
     slug: "alfajores",
@@ -74,6 +77,7 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     layout: "hero",
     accent: "#ff7438",
     accentSoft: "#3d1c11",
+    image: "/categorias/sandwiches.webp",
   },
   fiambres: {
     slug: "fiambres",
@@ -94,6 +98,7 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     layout: "list",
     accent: "#a970ff",
     accentSoft: "#2b1749",
+    image: "/categorias/golosinas.webp",
   },
   gaseosas: {
     slug: "gaseosas",
@@ -113,25 +118,38 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     accent: "#ff7438",
     accentSoft: "#3d1c11",
   },
-  bazar: {
-    slug: "bazar",
-    label: "Bazar",
-    shortLabel: "Bazar",
-    description: "Las cosas simples que te salvan a cualquier hora.",
+  vinoteca: {
+    slug: "vinoteca",
+    label: "Vinoteca",
+    shortLabel: "Vinoteca",
+    // Es la categoría más larga del catálogo y son todas botellas: en grilla
+    // con foto habría que scrollear cuarenta pantallas para encontrar un
+    // fernet. Como lista se lee igual que la estantería.
+    description: "Vinos, espumantes, aperitivos y destilados. La botella que falta.",
     layout: "list",
     accent: "#ffd447",
     accentSoft: "#3b3010",
   },
 };
 
-export const PRIMARY_CATEGORIES = ["tragos", "alfajores", "cerveza", "fumar"] as const;
+/** Los que se anuncian como cartel de neón arriba de todo. Sin foto: acá el
+ *  nombre del rubro es el que tiene que gritar, no una imagen. */
+export const PRIMARY_CATEGORIES = [
+  "tragos",
+  "alfajores",
+  "cerveza",
+  "fumar",
+  "golosinas",
+] as const;
+
+/** El orden importa: los dos primeros van a ancho completo y con foto, los dos
+ *  siguientes comparten línea, y el último cierra al lado de Lucas. */
 export const SECONDARY_CATEGORIES = [
   "sandwiches",
-  "fiambres",
-  "golosinas",
   "gaseosas",
+  "fiambres",
   "almacen",
-  "bazar",
+  "vinoteca",
 ] as const;
 
 export function isCategorySlug(value: string): value is CategorySlug {

@@ -1,16 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Space_Grotesk } from "next/font/google";
+import { Archivo } from "next/font/google";
 
 import { StoreHeader } from "@/components/store-header";
 import { CatalogProvider } from "@/providers/catalog-provider";
 
 import "./globals.css";
 
-/** Anton: condensada y pesada, de cartel de kiosco. Solo trae peso 400. */
-const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-display", display: "swap" });
-
-/** Space Grotesk en lugar de Inter: tiene carácter, Inter no opina nada. */
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+/**
+ * Una sola familia para todo, en varios pesos. Antes eran dos: Anton para los
+ * títulos y Space Grotesk para el texto.
+ *
+ * Anton es una display ultra-condensada de cartel: trae un solo peso y a
+ * cualquier tamaño grita. Sirve para un afiche, no para una web de pedidos
+ * donde hay que leer nombres de producto y precios. Archivo es la grotesca que
+ * usa la marca, tiene de 400 a 900 de verdad, y deja que la jerarquía la haga
+ * el peso en vez del tamaño — que es lo que hace que un sitio se vea prolijo
+ * en lugar de ruidoso.
+ */
+const archivo = Archivo({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://la-bomba-24.vercel.app"),
@@ -48,7 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="es-AR"
       data-scroll-behavior="smooth"
-      className={`${anton.variable} ${spaceGrotesk.variable}`}
+      className={archivo.variable}
     >
       <body>
         <CatalogProvider>
