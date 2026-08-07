@@ -1,5 +1,5 @@
 import { formatPesos } from "@/lib/format";
-import { formatAmount, isByWeight, lineTotal } from "@/lib/pricing";
+import { formatAmount, formatGrams, isByWeight, lineTotal } from "@/lib/pricing";
 import type { CartItem, DeliveryZone } from "@/types/domain";
 
 export const MAX_WHATSAPP_CHARACTERS = 1800;
@@ -16,11 +16,15 @@ export interface WhatsAppOrder {
 }
 
 function itemLine(item: CartItem): string {
-  // Por peso: "500 g de Jamón crudo". Por unidad se mantiene "2x Heineken",
-  // que es el formato que el local ya viene leyendo.
+  // Por peso: "500 g de Jamón crudo". Por presentación: "2x Mortadela (250 g)",
+  // que es como se canta en el mostrador —tantos paquetes de tanto— y no
+  // "500 g", que obligaría a rehacer la cuenta al que corta.
+  // Por unidad se mantiene "2x Heineken", el formato que el local ya lee.
   const label = isByWeight(item)
     ? `${formatAmount(item)} de ${item.nombre}`
-    : `${formatAmount(item)} ${item.nombre}`;
+    : item.gramos !== undefined
+      ? `${formatAmount(item)} ${item.nombre} (${formatGrams(item.gramos)})`
+      : `${formatAmount(item)} ${item.nombre}`;
   return `• ${label} — ${formatPesos(lineTotal(item))}`;
 }
 

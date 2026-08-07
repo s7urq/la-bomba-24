@@ -4,15 +4,15 @@ import { ArrowLeft, Search, X } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
-import { CartDock } from "@/components/cart-dock";
 import { CatalogNotice } from "@/components/catalog-notice";
+import { CartDock } from "@/components/cart-dock";
 import { ProductCard } from "@/components/product-card";
 import { CATEGORIES, type CategorySlug } from "@/config/categories";
 import { normalizeSearch } from "@/lib/catalog";
 import { groupIntoSections } from "@/lib/sections";
 import { useCatalog } from "@/providers/catalog-provider";
 import { useCartStore } from "@/store/cart-store";
-import type { Product } from "@/types/domain";
+import type { Presentacion, Product } from "@/types/domain";
 
 function useDebouncedValue(value: string, delay: number): string {
   const [debounced, setDebounced] = useState(value);
@@ -61,6 +61,22 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
     [items],
   );
 
+  // Cuánto hay cargado de cada presentación, indexado por producto. Los 100 g y
+  // los 250 g del mismo fiambre son líneas distintas del pedido.
+  const porciones = useMemo(() => {
+    const mapa = new Map<string, Map<number, number>>();
+
+    for (const item of items) {
+      if (item.gramos === undefined) continue;
+      const productoId = item.id.split("#")[0];
+      const actual = mapa.get(productoId) ?? new Map<number, number>();
+      actual.set(item.gramos, item.cantidad);
+      mapa.set(productoId, actual);
+    }
+
+    return mapa;
+  }, [items]);
+
   // Los resultados de búsqueda cruzan categorías: seccionarlos ahí mezclaría
   // criterios distintos bajo un mismo título.
   const sections = useMemo(
@@ -68,8 +84,8 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
     [debouncedQuery, products],
   );
 
-  function handleAdd(product: Product) {
-    addProduct(product);
+  function handleAdd(product: Product, presentacion?: Presentacion) {
+    addProduct(product, presentacion);
     setJustAdded(product.id);
     navigator.vibrate?.(10);
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
@@ -150,6 +166,7 @@ export function CategoryScreen({ slug }: { slug: CategorySlug }) {
                     quantity={quantities.get(product.id) ?? 0}
                     justAdded={justAdded === product.id}
                     onAdd={handleAdd}
+                    porPresentacion={porciones.get(product.id)}
                   />
                 ))}
               </section>

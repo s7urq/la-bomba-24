@@ -264,62 +264,20 @@ p {
   padding: 0 16px;
 }
 
-/* La marca es una bomba con la mecha prendida: el nombre del local, literal.
-   El "24" va adentro del cuerpo, así el número deja de ser un badge suelto. */
+/* El logo de neón del local. El archivo ya trae el alfa calculado desde el
+   brillo de cada píxel, así que el negro sobre el que venía pintado no aparece
+   y el halo se apoya solo sobre el header — sin `mix-blend-mode`, que además
+   se rompe apenas un contenedor abre su propio contexto de apilado. */
 .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.brand__word {
-  color: var(--text-1);
-  font-family: var(--display);
-  font-size: 1.5rem;
-  letter-spacing: 0.005em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.brand__bomb {
-  position: relative;
   display: block;
-  width: 34px;
-  height: 34px;
+  line-height: 0;
 }
 
-.brand__bomb strong {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  margin-top: 4px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--yellow);
-  box-shadow: var(--glow-sm) rgba(255, 212, 71, 0.55);
-  color: #17120a;
-  font-family: var(--display);
-  font-size: 0.9rem;
-  letter-spacing: 0.01em;
+.brand img {
+  width: 152px;
+  height: auto;
 }
 
-.brand__fuse {
-  position: absolute;
-  top: -5px;
-  right: -6px;
-  width: 19px;
-  height: 19px;
-  color: var(--yellow);
-  filter: drop-shadow(0 0 5px rgba(255, 212, 71, 0.9));
-  animation: fuse-spark 1.4s var(--ease-in-out) infinite;
-}
-
-@keyframes fuse-spark {
-  50% {
-    opacity: 0.55;
-    filter: drop-shadow(0 0 9px rgba(255, 212, 71, 1));
-  }
-}
 
 .header-cart {
   position: relative;
@@ -359,14 +317,20 @@ p {
 
 /* Franja amarilla siempre presente: el horario es un dato fijo del local, no
    un estado. Lo que sí cambia es la chapita de la derecha. */
+/* La franja ahora es un botón que abre el mapa de reparto. Se ve igual que
+   antes a propósito: era el único lugar de la interfaz que ya hablaba de
+   delivery, así que colgarle ahí el "¿llegamos?" no suma un elemento nuevo a
+   la pantalla, le da función a uno que sólo informaba. */
 .delivery-strip {
   display: flex;
+  width: 100%;
   height: 37px;
   align-items: center;
   justify-content: center;
   gap: 9px;
   padding: 0 14px;
   overflow: hidden;
+  border: 0;
   background: var(--yellow);
   color: #17120a;
   font-family: var(--display);
@@ -375,6 +339,16 @@ p {
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.delivery-strip:active {
+  background: #f0c53c;
+}
+
+.delivery-strip > svg {
+  flex: 0 0 auto;
+  opacity: 0.72;
 }
 
 .delivery-strip b {
@@ -1958,4 +1932,283 @@ p {
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
   }
+}
+
+/* ── Presentaciones ──────────────────────────────────────────────────────
+   Los fiambres se venden en dos medidas con precio cerrado: los 100 g de
+   lista y los 250 g en oferta. Cada una es un botón, porque tocar "la card"
+   no significa nada cuando primero hay que decidir cuánto. */
+.product-card--porciones {
+  cursor: default;
+}
+
+/* El nombre arriba y los botones abajo a todo el ancho. En la fila de la
+   lista, con el nombre al lado, los botones quedaban tan angostos que "100 g"
+   se partía en dos renglones. */
+.product-card--porciones .product-card__body {
+  display: block;
+  min-height: 0;
+  padding: 9px 10px 10px;
+}
+
+.product-card--porciones .product-card__copy {
+  display: block;
+}
+
+.product-card--porciones .product-card__copy strong {
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.porciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+/* Fila, no ficha: la medida y el precio en un solo renglón. Apilados en dos
+   líneas cada botón medía 54px y con veintitrés fiambres la categoría se hacía
+   interminable — hay que poder barrerla con el pulgar. */
+.porcion {
+  position: relative;
+  display: flex;
+  min-height: 40px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--field);
+  color: var(--text-1);
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.porcion span {
+  min-width: 0;
+  color: var(--text-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.porcion b {
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* La oferta se distingue por el acento de la categoría, no por un color nuevo:
+   el verde ya es de WhatsApp y el amarillo de avanzar. */
+.porcion--oferta {
+  border-color: var(--card-accent);
+  background: linear-gradient(140deg, var(--card-accent-soft), var(--field) 78%);
+}
+
+/* La chapa va en el flujo, no flotando sobre el borde. Como elemento absoluto
+   se le montaba al precio o a los gramos según dónde la pusiera: en una fila
+   de 40px de alto no hay lugar libre para colgar nada encima. */
+.porcion em {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--card-accent);
+  color: #100a18;
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
+/* Cuántas de esa medida ya están en el pedido. */
+.porcion i {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--card-accent);
+  color: #100a18;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+  animation: count-pop var(--dur-enter) var(--ease-pop);
+}
+
+.porcion:active {
+  transform: scale(0.96);
+  border-color: var(--card-accent);
+}
+
+.porcion:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── Mapa de reparto ─────────────────────────────────────────────────────
+   <dialog> nativo: trae gratis el cierre con Escape, el foco atrapado adentro
+   y el resto de la página marcado como inerte. Hacer eso a mano con un div son
+   cien líneas de JS que se rompen solas. */
+.mapa-modal {
+  width: min(100% - 24px, 460px);
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line-3);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+  color: var(--text-1);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+.mapa-modal::backdrop {
+  background: rgba(4, 2, 8, 0.82);
+}
+
+.mapa-modal__caja > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+.mapa-modal__caja h2 {
+  margin: 3px 0 2px;
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.mapa-modal__caja > header p:not(.eyebrow) {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.78rem;
+}
+
+.mapa-modal__caja > header button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+/* Cuadrado a propósito: Leaflet encuadra sobre el anillo más lejano, y con
+   una proporción alargada el círculo entra por un eje y se sale por el otro. */
+.mapa-modal__mapa {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--field);
+  border-block: 1px solid var(--line-2);
+}
+
+.mapa-lienzo {
+  width: 100%;
+  height: 100%;
+}
+
+.mapa-lienzo .leaflet-container {
+  background: var(--field);
+  font-family: var(--sans);
+}
+
+/* Etiqueta de cada anillo. `width: max-content` con la traslación negativa la
+   centra sobre el borde del círculo: el divIcon de Leaflet no declara tamaño,
+   así que la posición la resuelve el CSS. */
+.mapa-tip {
+  width: max-content;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 212, 71, 0.55);
+  border-radius: 999px;
+  background: rgba(11, 8, 18, 0.92);
+  color: var(--yellow);
+  font-size: 0.62rem;
+  font-weight: 800;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.mapa-lienzo .leaflet-control-attribution {
+  background: rgba(11, 8, 18, 0.8);
+  color: var(--text-3);
+  font-size: 0.58rem;
+}
+
+.mapa-lienzo .leaflet-control-attribution a {
+  color: var(--text-2);
+}
+
+.mapa-zonas {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.mapa-zonas li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-1);
+}
+
+.mapa-zonas li:last-child {
+  border-bottom: 0;
+}
+
+.mapa-zonas strong {
+  flex: 0 0 auto;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.mapa-zonas span {
+  color: var(--text-3);
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.mapa-modal__caja > footer {
+  padding: 14px 16px 16px;
+}
+
+.mapa-modal__caja > footer > p {
+  margin: 0 0 12px;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.mapa-modal__caja > footer a {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  background: var(--yellow);
+  color: #17120a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }

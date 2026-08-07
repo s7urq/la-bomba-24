@@ -8,7 +8,7 @@ export const CATEGORY_SLUGS = [
   "golosinas",
   "gaseosas",
   "almacen",
-  "bazar",
+  "vinoteca",
 ] as const;
 
 export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
@@ -113,11 +113,14 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     accent: "#ff7438",
     accentSoft: "#3d1c11",
   },
-  bazar: {
-    slug: "bazar",
-    label: "Bazar",
-    shortLabel: "Bazar",
-    description: "Las cosas simples que te salvan a cualquier hora.",
+  vinoteca: {
+    slug: "vinoteca",
+    label: "Vinoteca",
+    shortLabel: "Vinoteca",
+    // Es la categoría más larga del catálogo y son todas botellas: en grilla
+    // con foto habría que scrollear cuarenta pantallas para encontrar un
+    // fernet. Como lista se lee igual que la estantería.
+    description: "Vinos, espumantes, aperitivos y destilados. La botella que falta.",
     layout: "list",
     accent: "#ffd447",
     accentSoft: "#3b3010",
@@ -131,7 +134,7 @@ export const SECONDARY_CATEGORIES = [
   "golosinas",
   "gaseosas",
   "almacen",
-  "bazar",
+  "vinoteca",
 ] as const;
 
 export function isCategorySlug(value: string): value is CategorySlug {

@@ -29,7 +29,7 @@ const items: CartItem[] = [
 const order: WhatsAppOrder = {
   items,
   subtotal: 24400,
-  zone: { nombre: "Zona 2", costo: 1500, pedidoMinimo: 10000, minutos: 30 },
+  zone: { nombre: "Zona 2", costo: 1500, pedidoMinimo: 10000, minutos: 30, km: 5 },
   total: 25900,
   name: "Santi",
   address: "Mitre 1234, Quilmes",
